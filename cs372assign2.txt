@@ -1,0 +1,13 @@
+function<int(int)> repeatFunction(function<int(int)> f, int n)
+{
+	auto rpf = [=](int n)
+	{
+		int x = n
+		for(int i = 0; i<n; ++i)
+		{
+			x = f(x)
+		}
+		return x;
+	}
+	return rpf;
+}
