@@ -122,7 +122,7 @@ function lexit.lex(program)
         if current_char == "#" then
             while true do
                 
-                if current_char == "\n" then
+                if char == "\n" then
                     break
                 elseif current_char() == "" then
                     pref_op = false
@@ -309,7 +309,7 @@ function lexit.lex(program)
     local function handle_STRING()
         while true do
             add_char()
-            if char == str_type then
+            if current_char() == str_type then
                 state = DONE
                 cat = STRLIT
                 break
