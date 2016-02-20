@@ -118,19 +118,20 @@ function lexit.lex(program)
         while is_whitespace(current_char()) do
             to_next()
         end
-
-        if current_char == "#" then
-            while true do
-                
-                if char == "\n" then
-                    break
-                elseif current_char() == "" then
-                    pref_op = false
-                    return
-                end
-                to_next()
-            end
-        end
+		while true do
+		
+			if current_char() ~= "#" then
+				break
+			end
+					
+			while current_char() ~= "\n" do
+				to_next()
+				if current_char() == "" then
+					return
+				end
+			end
+			to_next()
+		end
     end
 
     local function handle_START()
@@ -144,7 +145,6 @@ function lexit.lex(program)
             if pref_OP then
                 state = DONE
                 cat = OP
-                pref_OP = false
             else
                 add_char()
                 state = PLUS
@@ -153,7 +153,6 @@ function lexit.lex(program)
             if pref_OP then
                 state = DONE
                 cat = OP
-                pref_OP = false
             else
                 add_char()
                 state = MINUS
@@ -307,18 +306,15 @@ function lexit.lex(program)
     end
 
     local function handle_STRING()
-        while true do
             add_char()
             if current_char() == str_type then
                 state = DONE
                 cat = STRLIT
-                break
+				add_char()
             elseif char == "" then
                 state = DONE
                 cat = MAL
-                break
             end
-        end
     end
 
     handlers = {
@@ -336,6 +332,7 @@ function lexit.lex(program)
 
     local function get_lexeme(dummy1, dummy2)
         if pos > program:len() then
+			pref_OP = false
             return nil,nil
         end
         lex = ""
@@ -345,6 +342,7 @@ function lexit.lex(program)
             handlers[state]()
         end
         skip_whitespace()
+		pref_OP = false
         return lex, cat
     end
 
