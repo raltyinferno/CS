@@ -357,6 +357,17 @@ function parse_factor()
 		elseif matchCat(NUMLIT) then
 			return true, { {UN_OP, savelex}, {NUMLIT_VAL, lexid} }
 		
+		elseif matchCat(OP) then
+			good, ast = parse_factor()
+			
+			if not good then
+				return false, nil
+			end
+			
+		 return true, { {UN_OP, savelex}, ast }
+		
+
+		
 		end
 		
 		return false, nil
