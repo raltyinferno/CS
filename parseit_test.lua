@@ -14,7 +14,8 @@ parseit = require "parseit"  -- Import parseit module
 -- * YOU MAY WISH TO CHANGE THE FOLLOWING LINE *
 -- *********************************************
 
---exit_on_failure = true
+exit_on_failure = true
+
 
 -- If exit_on_failure is true, then:
 -- - On first failing test, we print the input, expected output, and
@@ -155,7 +156,11 @@ function astEq(ast1, ast2)
     if type(ast1) ~= type(ast2) then
         return false
     end
+<<<<<<< HEAD
+    
+=======
 
+>>>>>>> cd0671ad88ff223fdcb734b23f3d24e62bee42c9
     if type(ast1) ~= "table" then
         return ast1 == ast2
     end
@@ -197,7 +202,11 @@ function checkParse(t, prog, expectedGood, expectedAST, testName)
         sameAST = astEq(expectedAST, actualAST)
     end
     t:test(sameGood and sameAST, testName)
+<<<<<<< HEAD
+        
+=======
 
+>>>>>>> cd0671ad88ff223fdcb734b23f3d24e62bee42c9
     if not exit_on_failure or (sameGood and sameAST) then
         return
     end

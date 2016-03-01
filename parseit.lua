@@ -43,23 +43,14 @@ local function advance()
 	
 	
     -- If we're not past the end, copy current lexeme into vars
-    if lexer_out_s ~= nil then
-	
-		if lexstr == "]" then
-		lexer.preferOp()
-		elseif lexstr == ")" then
-		lexer.preferOp()
-		elseif lexcat == NUMLIT then
-		lexer.preferOp()
-		elseif lexcat == ID then
-		lexer.preferOp()
-		
-		end
-	
+    if lexer_out_s ~= nil then	
         lexstr, lexcat = lexer_out_s, lexer_out_c
     else
         lexstr, lexcat = "", 0
     end
+	if lexstr == "]" or lexstr == ")" or lexcat == NUMLIT or lexcat == ID then
+			lexer.preferOp()		
+		end
 end
 
 
@@ -112,16 +103,11 @@ end
 -- Primary Function for Client Code
 
 -- Define local functions for later calling (like prototypes in C++)
-local parse_all
 local parse_expr
 local parse_term
 local parse_factor
 
 
--- parse
--- Given program, initialize parser and call parsing function for start
--- symbol. Returns boolean: true indicates successful parse AND end of
--- input reached. Otherwise, false.
 function parseit.parse(prog)
     -- Initialization
     init(prog)
@@ -149,26 +135,7 @@ end
 -- current lexeme. See the AST Specification near the beginning of this
 -- file for the format of the returned AST.
 
-----------------------------------------------------------
 
---{   ignored    }
--- parse_all     ==     parse_program
--- Parsing function for nonterminal "all".
--- Function init must be called before this function is called.
-function parse_all()
-    local good, ast
-
-    good, ast = parse_expr()
-    if not good then
-        return false, nil
-    end
-
-    if not atEnd() then
-        return false, nil
-    end
-
-    return true, ast
-end
 
 -- parse_program
 -- Parsing function for nonterminal "program".
