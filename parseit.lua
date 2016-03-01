@@ -40,8 +40,22 @@ local function advance()
     -- Advance the iterator
     lexer_out_s, lexer_out_c = iter(state, lexer_out_s)
 
+	
+	
     -- If we're not past the end, copy current lexeme into vars
     if lexer_out_s ~= nil then
+	
+		if lexstr == "]" then
+		lexer.preferOp()
+		elseif lexstr == ")" then
+		lexer.preferOp()
+		elseif lexcat == NUMLIT then
+		lexer.preferOp()
+		elseif lexcat == ID then
+		lexer.preferOp()
+		
+		end
+	
         lexstr, lexcat = lexer_out_s, lexer_out_c
     else
         lexstr, lexcat = "", 0
@@ -384,7 +398,30 @@ function parse_lvalue()
 		
     elseif matchCat(NUMLIT) then
         --return true, { NUMLIT_VAL, savelex }
-		return false, nil
+		
+		if matchString("=") then
+			return false, nil
+		end
+		
+		
+		plus = lexstr
+		if matchString("+") then
+			num2 = lexstr
+			
+			if matchCat(NUMLIT) then
+			
+			return true, {BIN_OP, plus}, {NUMLIT_VAL, num1}, {NUMLIT_VAL, num2}
+			
+			end
+			return false, nil
+		
+		end
+		
+		 return true, { NUMLIT_VAL, savelex }
+		
+		
+		
+		--return false, nil
 		
     elseif matchString("(") then
         good, ast = parse_statement()
