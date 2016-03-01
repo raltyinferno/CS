@@ -40,12 +40,17 @@ local function advance()
     -- Advance the iterator
     lexer_out_s, lexer_out_c = iter(state, lexer_out_s)
 
+    
+    
     -- If we're not past the end, copy current lexeme into vars
-    if lexer_out_s ~= nil then
+    if lexer_out_s ~= nil then  
         lexstr, lexcat = lexer_out_s, lexer_out_c
     else
         lexstr, lexcat = "", 0
     end
+    if lexstr == "]" or lexstr == ")" or lexcat == NUMLIT or lexcat == ID then
+            lexer.preferOp()        
+        end
 end
 
 
@@ -98,16 +103,11 @@ end
 -- Primary Function for Client Code
 
 -- Define local functions for later calling (like prototypes in C++)
-local parse_all
 local parse_expr
 local parse_term
 local parse_factor
 
 
--- parse
--- Given program, initialize parser and call parsing function for start
--- symbol. Returns boolean: true indicates successful parse AND end of
--- input reached. Otherwise, false.
 function parseit.parse(prog)
     -- Initialization
     init(prog)
@@ -135,26 +135,7 @@ end
 -- current lexeme. See the AST Specification near the beginning of this
 -- file for the format of the returned AST.
 
-----------------------------------------------------------
 
---{   ignored    }
--- parse_all     ==     parse_program
--- Parsing function for nonterminal "all".
--- Function init must be called before this function is called.
-function parse_all()
-    local good, ast
-
-    good, ast = parse_expr()
-    if not good then
-        return false, nil
-    end
-
-    if not atEnd() then
-        return false, nil
-    end
-
-    return true, ast
-end
 
 -- parse_program
 -- Parsing function for nonterminal "program".
@@ -188,7 +169,7 @@ function parse_expr()
 
     while true do
         saveop = lexstr
-        if not matchString("+") and not matchString("-") then
+        if not matchString("+") and not matchString("-") and not matchString("==") and not matchString("!=")then
             return true, ast
         end
 
@@ -239,11 +220,11 @@ function parse_statement()
         good, ast1 = parse_lvalue()
         if not good then
             return false, nil
-        end		
-		
-		if not matchString("=") then
+        end     
+        
+        if not matchString("=") then
             return false, nil
-        end		
+        end     
 
 
         good, ast2 = parse_expr()
@@ -265,28 +246,28 @@ function parse_statement()
         return true, {PRINT_STMT, ast1}
 
     elseif matchString("nl") then
-		return true, {NL_STMT}
-		
-	elseif matchString("input") then
-		good, ast1 = parse_lvalue()
-		if not good then
-			return false, nil
-		end
-		return true, {SET_STMT, ast1}
-		
+        return true, {NL_STMT}
+        
+    elseif matchString("input") then
+        good, ast1 = parse_lvalue()
+        if not good then
+            return false, nil
+        end
+        return true, {SET_STMT, ast1}
+        
     elseif matchString("if") then
-		good,ast1 = parse_expr()
-		if not good then
-			return false, nil
-		end
-		good, ast2 = parse_expr()
-		if not good then
-			return false,nil
-		end
-		return {IF_STMT,ast1,ast2}
+        good,ast1 = parse_expr()
+        if not good then
+            return false, nil
+        end
+        good, ast2 = parse_expr()
+        if not good then
+            return false,nil
+        end
+        return {IF_STMT,ast1,ast2}
     elseif matchString("while") then
-		
-			
+        
+            
     end
 
 
@@ -308,7 +289,7 @@ function parse_term()
 
     while true do
         saveop = lexstr
-        if not matchString("*") and not matchString("/") then
+        if not matchString("*") and not matchString("/") and not matchString("%") then
             return true, ast
         end
 
@@ -363,29 +344,52 @@ function parse_lvalue()
 
     savelex = lexstr
     if matchCat(ID) then
-	
-				
-		if matchString("[") then
-			savenum = lexstr
-			if matchCat(NUMLIT) then 
-				if matchString("]") then
-					return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
-					--return true, {PRINT_STMT, {STRLIT_VAL, savelex}}
-				end
-				
-				return false, nil
-			end
-		
-		else
-			return true, { ID_VAL, savelex }
-		end
-		
-		
-		
+    
+                
+        if matchString("[") then
+            savenum = lexstr
+            if matchCat(NUMLIT) then 
+                if matchString("]") then
+                    return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
+                    --return true, {PRINT_STMT, {STRLIT_VAL, savelex}}
+                end
+                
+                return false, nil
+            end
+        
+        else
+            return true, { ID_VAL, savelex }
+        end
+        
+        
+        
     elseif matchCat(NUMLIT) then
         --return true, { NUMLIT_VAL, savelex }
-		return false, nil
-		
+        
+        if matchString("=") then
+            return false, nil
+        end
+        
+        
+        plus = lexstr
+        if matchString("+") then
+            num2 = lexstr
+            
+            if matchCat(NUMLIT) then
+            
+            return true, {BIN_OP, plus}, {NUMLIT_VAL, num1}, {NUMLIT_VAL, num2}
+            
+            end
+            return false, nil
+        
+        end
+        
+         return true, { NUMLIT_VAL, savelex }
+        
+        
+        
+        --return false, nil
+        
     elseif matchString("(") then
         good, ast = parse_statement()
         if not good then
