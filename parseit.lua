@@ -308,7 +308,7 @@ function parse_term()
 
     while true do
         saveop = lexstr
-        if not matchString("*") and not matchString("/") then
+        if not matchString("\n")then
             return true, ast
         end
 
