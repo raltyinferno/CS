@@ -328,6 +328,22 @@ function parse_factor()
         end
 
         return true, ast
+		
+		
+	elseif matchCat(OP) then  -- accounting for the unary operators "+3"
+		lexid = lexstr
+		
+		if matchCat(ID) then
+			return true, { {UN_OP, savelex}, {ID_VAL, lexid} }
+		
+		elseif matchCat(NUMLIT) then
+			return true, { {UN_OP, savelex}, {NUMLIT_VAL, lexid} }
+		
+		end
+		
+		return false, nil
+		
+		
     else
         return false, nil
     end
