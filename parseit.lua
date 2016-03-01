@@ -314,6 +314,24 @@ function parse_factor()
 
     savelex = lexstr
     if matchCat(ID) then
+	
+		
+        if matchString("[") then
+            savenum = lexstr
+            if matchCat(NUMLIT) then 
+                if matchString("]") then
+                    return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
+                    --return true, {PRINT_STMT, {STRLIT_VAL, savelex}}
+                end
+                
+                return false, nil
+            end
+			return false, nil
+        end
+		
+		
+		
+	
         return true, { ID_VAL, savelex }
     elseif matchCat(NUMLIT) then
         return true, { NUMLIT_VAL, savelex }
