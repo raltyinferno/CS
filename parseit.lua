@@ -36,6 +36,7 @@ local STRLIT_VAL = 11
 local ID_VAL     = 12
 local ARRAY_REF  = 13
 
+
 local function advance()
     -- Advance the iterator
     lexer_out_s, lexer_out_c = iter(state, lexer_out_s)
@@ -255,18 +256,27 @@ function parse_statement()
         if not good then
             return false, nil
         end
-        return true, {SET_STMT, ast1}
+        return true, {INPUT_STMT, ast1}
         
     elseif matchString("if") then
-        good,ast1 = parse_expr()
-        if not good then
-            return false, nil
-        end
-        good, ast2 = parse_expr()
-        if not good then
-            return false,nil
-        end
-        return {IF_STMT,ast1,ast2}
+		good,ast1 = parse_expr()
+		
+		if not good then
+			return false, nil
+		end
+		
+		good, ast2 = parse_statement()
+		
+		if not good then
+			return false, nil
+		end
+		
+		ast2 = {STMT_LIST, ast2}
+		ast1 = {ast1,ast2}
+		if not matchString("end") then
+			return false, nil
+		end
+        return {IF_STMT,ast1}
     elseif matchString("while") then
         
             
@@ -305,7 +315,6 @@ function parse_term()
 end
 
 
---{   ignored?    }
 -- parse_factor
 -- Parsing function for nonterminal "factor".
 -- Function init must be called before this function is called.
@@ -321,7 +330,6 @@ function parse_factor()
             if matchCat(NUMLIT) then 
                 if matchString("]") then
                     return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
-                    --return true, {PRINT_STMT, {STRLIT_VAL, savelex}}
                 end
                 
                 return false, nil
