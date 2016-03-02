@@ -162,6 +162,34 @@ end
 function parse_expr()
     local good, ast, saveop, newast
 
+    good, ast = parse_aexpr()
+    if not good then
+        return false, nil
+    end
+
+    while true do
+        saveop = lexstr
+        if not matchString("==") 
+		and not matchString("!=") and not matchString("<") and not matchString(">") 
+		and not matchString("<=") and not matchString(">=") then
+            return true, ast
+        end
+
+        good, newast = parse_aexpr()
+        if not good then
+            return false, nil
+        end
+
+        ast = { { BIN_OP, saveop }, ast, newast }
+    end
+end
+
+-- parse_aexpr 
+-- Parsing function for nonterminal "expr".
+-- Function init must be called before this function is called.
+function parse_aexpr()
+    local good, ast, saveop, newast
+
     good, ast = parse_term()
     if not good then
         return false, nil
@@ -169,9 +197,7 @@ function parse_expr()
 
     while true do
         saveop = lexstr
-        if not matchString("+") and not matchString("-") and not matchString("==") 
-		and not matchString("!=") and not matchString("<") and not matchString(">") 
-		and not matchString("<=") and not matchString(">=") then
+        if not matchString("+") and not matchString("-") then
             return true, ast
         end
 
