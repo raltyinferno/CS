@@ -100,9 +100,6 @@ local function matchCat(c)
 end
 
 
--- Primary Function for Client Code
-
--- Define local functions for later calling (like prototypes in C++)
 local parse_expr
 local parse_term
 local parse_factor
@@ -115,25 +112,12 @@ function parseit.parse(prog)
     -- Get results from parsing
     local success, ast = parse_program()  -- Parse start symbol
 
-    -- And return them
     if success then
         return true, ast
     else
         return false, nil
     end
 end
-
-
--- Parsing Functions
-
--- Each of the following is a parsing function for a nonterminal in the
--- grammar. Each function parses the nonterminal in its name and returns
--- a pair: boolean, AST. On a successul parse, the boolean is true, the
--- AST is valid, and the current lexeme is just past the end of the
--- string the nonterminal expanded into. Otherwise, the boolean is
--- false, the AST is not valid, and no guarantees are made about the
--- current lexeme. See the AST Specification near the beginning of this
--- file for the format of the returned AST.
 
 
 
@@ -301,9 +285,6 @@ function parse_statement()
 
 end
 
-----------------------------------------------------------------
-
-
 -- parse_term
 -- Parsing function for nonterminal "term".
 -- Function init must be called before this function is called.
@@ -331,7 +312,6 @@ function parse_term()
 end
 
 
---{   ignored?    }
 -- parse_factor
 -- Parsing function for nonterminal "factor".
 -- Function init must be called before this function is called.
@@ -347,7 +327,6 @@ function parse_factor()
             if matchCat(NUMLIT) then 
                 if matchString("]") then
                     return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
-                    --return true, {PRINT_STMT, {STRLIT_VAL, savelex}}
                 end
                 
                 return false, nil
@@ -374,7 +353,7 @@ function parse_factor()
         return true, ast
 		
 		
-	elseif matchCat(OP) then  -- accounting for the unary operators "+3"
+	elseif matchCat(OP) then 
 		lexid = lexstr
 		
 		if matchCat(ID) then
@@ -408,9 +387,6 @@ end
 
 
 
---parse_lvalue
---
---
 function parse_lvalue()
 
     local savelex, good, ast
@@ -424,7 +400,6 @@ function parse_lvalue()
             if matchCat(NUMLIT) then 
                 if matchString("]") then
                     return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
-                    --return true, {PRINT_STMT, {STRLIT_VAL, savelex}}
                 end
                 
                 return false, nil
@@ -437,7 +412,6 @@ function parse_lvalue()
         
         
     elseif matchCat(NUMLIT) then
-        --return true, { NUMLIT_VAL, savelex }
         
         if matchString("=") then
             return false, nil
@@ -458,10 +432,7 @@ function parse_lvalue()
         end
         
          return true, { NUMLIT_VAL, savelex }
-        
-        
-        
-        --return false, nil
+
         
     elseif matchString("(") then
         good, ast = parse_statement()
