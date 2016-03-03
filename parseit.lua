@@ -269,28 +269,32 @@ function parse_statement()
         
     elseif matchString("if") then
 		local ast3
-        good,ast2 = parse_expr()
+        good,ast1 = parse_expr()
         if not good then
             return false, nil
         end
-		ast1 = {IF_STMT, ast2}
+		--ast1 = {IF_STMT, ast2}
         good, ast2 = parse_stmt_list()
         if not good then
             return false,nil
         end
-		table.insert(ast1,ast2)
+		ast1 = {IF_STMT, ast1, ast2}
+		--table.insert(ast1,ast2)
+		
+		local ast4
 		while true do
 			if matchString("elseif") then
-				good, ast2 = parse_expr()
+			
+				good, ast3 = parse_expr()
 				if not good then
 					return false, nil
 				end
-				good, ast3 = parse_stmt_list()
+				good, ast4 = parse_stmt_list()
 				if not good then
 					return false, nil
 				end
-				table.insert(ast1,ast2)
 				table.insert(ast1,ast3)
+				table.insert(ast1,ast4)
 			else
 				break
 			end				
