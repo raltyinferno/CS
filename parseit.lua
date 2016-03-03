@@ -301,7 +301,8 @@ function parse_statement()
 				return false,nil
 			end
 			table.insert(ast1,ast3)
-		elseif matchString("end") then
+		end
+		if matchString("end") then
 			return true,ast1
 		else
 			return false, nil
