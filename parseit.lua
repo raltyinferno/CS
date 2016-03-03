@@ -291,18 +291,21 @@ function parse_statement()
 				end
 				table.insert(ast1,ast2)
 				table.insert(ast1,ast3)
-			elseif matchString("else") then
-				good, ast3 = parse_stmt_list()
-				if not good then
-					return false,nil
-				end
-				table.insert(ast1,ast3)
-			elseif matchString("end") then
-				return ast1
 			else
-				return false, nil
-			end		
+				break
+			end				
 		end
+		if matchString("else") then
+			good, ast3 = parse_stmt_list()
+			if not good then
+				return false,nil
+			end
+			table.insert(ast1,ast3)
+		elseif matchString("end") then
+			return ast1
+		else
+			return false, nil
+		end	
 		
     elseif matchString("while") then
         
