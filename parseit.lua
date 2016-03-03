@@ -354,14 +354,17 @@ function parse_factor()
 		
         if matchString("[") then
             savenum = lexstr
-            if matchCat(NUMLIT) then 
-                if matchString("]") then
-                    return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
-                end
-                
-                return false, nil
-            end
+			good, ast = parse_expr()
+			
+			if not good then
+			return false
+			end
+			
+			if not matchString("]") then
 			return false, nil
+            end
+			
+			return true, { ARRAY_REF, {ID_VAL, savelex}, ast  }			
         end
 		
 		
@@ -386,26 +389,16 @@ function parse_factor()
 	elseif matchCat(OP) then 
 		lexid = lexstr
 		
-		if matchCat(ID) then
-			return true, { {UN_OP, savelex}, {ID_VAL, lexid} }
 		
-		elseif matchCat(NUMLIT) then
-			return true, { {UN_OP, savelex}, {NUMLIT_VAL, lexid} }
-		
-		else
 			good, ast = parse_factor()
 			
-			if not good then
+			if not good or (savelex ~= "+" and savelex ~= "-") then
 				return false, nil
 			end
 			
 		 return true, { {UN_OP, savelex}, ast }
 		
-
-		
-		end
-		
-		return false, nil
+	
 		
 		
     else
