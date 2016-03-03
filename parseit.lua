@@ -432,19 +432,20 @@ function parse_lvalue()
                 
         if matchString("[") then
             savenum = lexstr
-            if matchCat(NUMLIT) then 
-                if matchString("]") then
-                    return true, { ARRAY_REF, {ID_VAL, savelex}, {NUMLIT_VAL, savenum}  }
-                end
-                
-                return false, nil
+			good, ast = parse_expr()
+			
+			if not good then
+			return false
+			end
+			
+			if not matchString("]") then
+			return false, nil
             end
-        
-        else
-            return true, { ID_VAL, savelex }
+			
+			return true, { ARRAY_REF, {ID_VAL, savelex}, ast  }			
         end
         
-        
+        return true, {ID_VAL, savelex}
         
     elseif matchCat(NUMLIT) then
         
