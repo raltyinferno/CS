@@ -265,7 +265,7 @@ function parse_statement()
         if not good then
             return false, nil
         end
-        return true, {SET_STMT, ast1}
+        return true, {INPUT_STMT, ast1}
         
     elseif matchString("if") then
 		local ast3
