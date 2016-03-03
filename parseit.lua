@@ -308,7 +308,19 @@ function parse_statement()
 		end	
 		
     elseif matchString("while") then
-        
+        good, ast1 = parse_expr()
+		if not good then
+			return false,nil
+		end
+		good, ast2 = parse_stmt_list()
+		if not good then
+			return false, nil
+		end
+		if matchString("end") then
+			return true, {WHILE_STMT, ast1,ast2}
+		else
+			return false, nil
+		end
             
     end
 
