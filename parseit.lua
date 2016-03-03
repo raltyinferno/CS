@@ -226,7 +226,7 @@ end
 -- Parsing function for nonterminal "statement"
 -- Function init must be called before this function is called.
 function parse_statement()
-    local good, ast1, ast2, savelex
+    local good, ast1={}, ast2, savelex
 
     if matchString("set") then
         good, ast1 = parse_lvalue()
@@ -268,15 +268,42 @@ function parse_statement()
         return true, {SET_STMT, ast1}
         
     elseif matchString("if") then
-        good,ast1 = parse_expr()
+		local ast3
+        good,ast2 = parse_expr()
         if not good then
             return false, nil
         end
-        good, ast2 = parse_expr()
+		ast1 = {IF_STMT, ast2}
+        good, ast2 = parse_stmt_list()
         if not good then
             return false,nil
         end
-        return {IF_STMT,ast1,ast2}
+		table.insert(ast1,ast2)
+		while true do
+			if matchString("elseif") then
+				good, ast2 = parse_expr()
+				if not good then
+					return false, nil
+				end
+				good, ast3 = parse_stmt_list()
+				if not good then
+					return false, nil
+				end
+				table.insert(ast1,ast2)
+				table.insert(ast1,ast3)
+			elseif matchString("else") then
+				good, ast3 = parse_stmt_list()
+				if not good then
+					return false,nil
+				end
+				table.insert(ast1,ast3)
+			elseif matchString("end") then
+				return ast1
+			else
+				return false, nil
+			end		
+		end
+		
     elseif matchString("while") then
         
             
