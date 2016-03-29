@@ -63,15 +63,16 @@ doubleSharp (x:xs) (y:ys) q j1 j2
 	
 
 
+--{-|
 --Return a tuple, even sum and odd sum as the pair of numbers--
 sumEvenOdd n[] = do
 	let total1 = []
 	let total2 = []
 	let final 
-SeperateEvenOdd
-	value1 <- foldr total1 []
-	value2 <- foldr total2 []
-	final(value1,value2)
+		SeperateEvenOdd
+		foldt (+) total1 [] = value1
+		foldt (+) total2 [] = value2
+		final(value1,value2)
 	
 SeperateEvenOdd n[] =do
 	if even n
@@ -79,3 +80,4 @@ SeperateEvenOdd n[] =do
 		else do
 			total2 ++ n 
 		sumEvenOdd
+---}		
