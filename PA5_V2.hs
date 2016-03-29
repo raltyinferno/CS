@@ -1,11 +1,15 @@
 -- PA5.hs
--- Matthew Parrish
--- CS331 Assignment 5, part A
--- 3/27/2014
--- Module PA5 with functions to filter and return a list,
--- and to calculate a list of collatz numbers.
+-- Scott Corcoran
+-- 3/28/2016
+--
+-- For CS 331 Spring 2015
+-- PA5 module Program for Assignment 5, Exercise A
 
-module PA5 where
+
+module PA5 where 
+
+import Data.List
+
 	
 ----------------------
 -- Filter Functions --
@@ -16,34 +20,48 @@ filterAB cond (x:xs) (y:ys) | cond x = y:others
 							| otherwise = others where
 							  others = filterAB cond xs ys
 
------------------------
--- Collatz Functions --
------------------------
-						  
-collatz n
-     | (mod n 2 == 0) = div n 2
-     | otherwise =  3 * n + 1
 
-collatz' = map collatzList[1..]
-collatz'' = map length collatz'
-collatzCounts = map (subtract 1) collatz''
+-- infinite list
+list = [1..]
 
-collatzList n
-        | n < 1 = error "Number go down the hoooole. And it broke."
-        | n == 1 = [n]
-        | otherwise = n:collatzList (collatz n)
-					
+-- collatz
+-- a helper function for collatzCounts, performs the calculation
+collatz k
+	| k == 1 		= 0
+	| odd k 			= 1 + collatz( 3 * k + 1)
+	| otherwise 	= 1 + collatz( k `div` 2 )
+	
+	
+-- collatzCounts
+-- This is a list of integers. Item k (counting from zero) of collatzCounts
+-- tell how many iterations of the Collatz function are required to take the
+-- number k+1 to 1
+collatzCounts = map collatz list
 
--- This checks for string existance in list--
---must use fold--
-findList = do
-	let list = [0,1,2,3]
-	1 + 2
-		
---return an int giving the number of numbers shared between two lists--
--- ## n 
---	|
-a ## b = 0
+-- findList
+-- Infix operator ##. The two operands are lists of the same type.
+-- The return value is an integer giving the number of indices at
+-- which the two lists contain equal values.
+findList :: Eq a => [a] -> [a] -> Maybe Int
+findList _ [] = Nothing
+findList [] _ = Just 0
+findList sub theList = find ( \i -> isPrefixOf sub (drop i theList)) (elemIndices (head sub) theList)
+
+--operator ##
+[ ] ## _ = 0
+_ ## [ ] = 0
+(x:xs) ## (y:ys) = doubleSharp (x:xs) (y:ys) 0 (length (x:xs)) (length (y:ys))
+
+--keeps track of lists sizes=knows when to end/return c
+--c counts how many items are equal
+doubleSharp [ ] _ q j1 j2 = q  
+doubleSharp _ [ ] q j1 j2 = q 
+doubleSharp (x:xs) (y:ys) q j1 j2 
+	| (j1 == 0 || j2 == 0)   = q
+	| x == y   			   = doubleSharp xs ys (q+1) (j1-1) (j2-1) 
+	| otherwise   		   = doubleSharp xs ys q (j1-1) (j2-1)
+	
+
 
 --Return a tuple, even sum and odd sum as the pair of numbers--
 sumEvenOdd n = do
