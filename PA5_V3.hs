@@ -71,13 +71,14 @@ addEvenOdd lis leng index total
 	-- | otherwise     = evens
 
 --splitEvenOdd [] flag evens odds = 
-splitEvenOdd (x:xs) flag (evens :: [a]) (odds :: [a]) len
-	| len == 0 = (foldr (+) evens, foldr (+) odds)
-	| flag == 0 = splitEvenOdd xs 1 (evens:x) odds (len-1)
-	| flag == 1 = splitEvenOdd xs 0 evens (odds:x) (len-1)
+splitEvenOdd [] flag evens odds = (foldr (+) 0 evens, foldr (+) 0 odds)
+splitEvenOdd (x:xs) flag evens odds
+	-- | len == 0 = (foldr (+) 0 evens, foldr (+) 0 odds)
+	| flag == 0 = splitEvenOdd xs 1 (x:evens) odds
+	| flag == 1 = splitEvenOdd xs 0 evens (x:odds)
 
 sumEvenOdd [] = (0,0)
-sumEvenOdd lis = splitEvenOdd lis 0 [] [] (length lis)
+sumEvenOdd lis = splitEvenOdd lis 0 [] []
 
 
 
