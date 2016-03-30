@@ -37,6 +37,8 @@ correspond (x:xs) (y:ys) depth count lim lim2
 	| x == y                          = correspond xs ys (depth+1) (count+1) lim lim2
 	| otherwise                       = correspond xs ys (depth+1) count lim lim2
 
+[ ] ## _ = 0
+_ ## [ ] = 0
 (x:xs) ## (y:ys) = correspond (x:xs) (y:ys) 1 0 (length (x:xs)) (length (y:ys))
 
 
@@ -53,20 +55,29 @@ filterAB bool (x:xs) (y:ys)
 --sumEvenOdd. Takes a list of ints and sums up the even and odd positioned numbers and puts them
 --in a tuple
 
-sumEvenOdd [] = (0,0)
-sumEvenOdd lis = (addEvenOdd lis (length lis) 0 0, addEvenOdd lis (length lis) 1 0)
+-- sumEvenOdd [] = (0,0)
+-- sumEvenOdd lis = (addEvenOdd lis (length lis) 0 0, addEvenOdd lis (length lis) 1 0)
 
 
 addEvenOdd lis leng index total
-	do
-		let tot = []
 	| index < leng = addEvenOdd lis leng (index+2) (total+lis!!index)
 	| otherwise = total
+	--obviously not using folds as it should be. hopefully I'll get to it
+	--before I pass out
 
-addEven lis leng index
-	| index < leng
+-- addEven [] evens index leng = evens 
+-- addEven x:xs:xss evens index leng
+	-- | index < leng  = addEven xss (evens:x) (index+2) leng
+	-- | otherwise     = evens
 
+--splitEvenOdd [] flag evens odds = 
+splitEvenOdd (x:xs) flag (evens :: [a]) (odds :: [a]) len
+	| len == 0 = (foldr (+) evens, foldr (+) odds)
+	| flag == 0 = splitEvenOdd xs 1 (evens:x) odds (len-1)
+	| flag == 1 = splitEvenOdd xs 0 evens (odds:x) (len-1)
 
+sumEvenOdd [] = (0,0)
+sumEvenOdd lis = splitEvenOdd lis 0 [] [] (length lis)
 
 
 
