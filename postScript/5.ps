@@ -26,9 +26,18 @@ gsave                                   % Save a copy of the current settings
   fill                                  %   and fill it.
 grestore                                % Go back to the original settings
 
-1 setlinewidth                          % Make the box lines wider
-0 45 360{
-rotate
-300 72 box stroke                       % Draw a black box
+3 setlinewidth                          % Make the box lines wider
+0 30 360{
+newpath
+  gsave
+  300 72 moveto   
+  rotate
+                               % Current point is on stack
+  0 72 rlineto                          % Left
+  72 0 rlineto                          % Top
+  0 -72 rlineto                         % Right
+  closepath                             % Bottom
+  stroke
+  grestore
 }for
 showpage

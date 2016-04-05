@@ -1,0 +1,29 @@
+/inch {72 mul} def 
+
+%0 rotate
+%1 0.5 scale
+3 setlinewidth
+newpath
+3 inch 4 inch 2 inch 0 360 arc
+closepath
+stroke
+gsave
+180 rotate
+newpath
+3 inch 4 inch 1 inch 0 180 arc
+closepath
+grestore
+stroke
+
+newpath
+0 0 moveto
+3 inch 4 inch lineto
+closepath
+stroke
+
+% 90 rotate
+% 1 0.5 scale
+% 3 inch 5 inch 1 inch 0 360 arc
+% 3 setlinewidth
+% stroke
+showpage
