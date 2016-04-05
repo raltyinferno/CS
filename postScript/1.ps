@@ -1,0 +1,12 @@
+
+
+/inch {72 mul} def      % Convert inches->points (1/72 inch)
+
+newpath                 % Start a new path
+1 inch 1 inch moveto    % an inch in from the lower left
+2 inch 1 inch lineto    % bottom side
+2 inch 2 inch moveto    % right side
+1 inch 2 inch lineto    % top side
+1 inch 1 inch lineto	% left side
+stroke                  % Draw the box on the paper
+showpage                % We're done... eject the page
