@@ -153,6 +153,8 @@ function interpit.interp(ast, state, incall, outcall)
 			--if(ast[2][2] == interp_stmt_list(ast[3])) then
 		elseif (ast[1] == WHILE_STMT) then
 			--
+		elseif (ast[1] == INPUT_STMT) then
+			state.s[ast[2][2]] = strToNum(incall())
 		else
             outcall("[DUNNO WHAT TO DO!!!]\n")
         end
