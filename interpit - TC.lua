@@ -144,10 +144,6 @@ function interpit.interp(ast, state, incall, outcall)
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
-<<<<<<< HEAD
-            else
-                outcall(ast[2][2])
-=======
             elseif (ast[2][1] == NUMLIT_VAL) then
 				outcall(ast[2][2])
 			elseif (ast[2][1] == ID_VAL) then
@@ -158,7 +154,6 @@ function interpit.interp(ast, state, incall, outcall)
 				end
 			else
 				outcall("[DUNNO WHAT TO DO!!!]\n")
->>>>>>> f19ac8bde8c2d2ebea0b6fd74885030b50e79c56
             end
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
