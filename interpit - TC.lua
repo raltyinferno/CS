@@ -147,7 +147,7 @@ function interpit.interp(ast, state, incall, outcall)
 				outcall(ast[2][2])
 			elseif (ast[2][1] == ID_VAL) then
 				if (state.s[ast[2][2]] ~= nil) then
-					outcall(state.s[ast[2][2]])
+					outcall(state.s[numToStr(ast[2][2]]))
 				else
 					outcall("0")
 				end
