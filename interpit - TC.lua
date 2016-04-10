@@ -164,6 +164,11 @@ function interpit.interp(ast, state, incall, outcall)
             interp_stmt(ast[k])
         end
     end
+	
+	local function eval_expr(ast)
+		
+	
+	end
 
 
     interp_stmt_list(ast)
