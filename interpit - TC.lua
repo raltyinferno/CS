@@ -168,6 +168,25 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
+    local function eval_expr(ast)
+        --  -eval_expr              -takes an AST, returns a value (number)
+--                          --if ast[1] == NUMLIT_VAR then
+--                          --.... happens
+--                          --elseif ast[1] == ID_VAL
+--                              --or ast[1] == ARRAT_REF
+--                          --... happens
+--                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
+--                          --... happens
+--                          --elseif ast[1][1] == BIN_OP then
+--                                  val1 == eval_expr(ast[2])
+--                                  val2 == eval_expr(ast[2])
+--                                  return toInt(val1 + val2)
+--                              -if ast[1][2] == "t" then
+--                              -... happens
+--                              -elseiif ast[1][2] == ...
+        
+    end
+
     local function interp_stmt_list(ast)
         assert(ast[1] == STMT_LIST)
         for k = 2, #ast do
