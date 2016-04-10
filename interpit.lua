@@ -102,6 +102,8 @@ function interpit.interp(ast, state, incall, outcall)
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
+            elseif (ast[2][1] == NUMLIT_VAL) then             --this needs to pass back a string all ints in zebo are given back as strings
+                outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
             else
                 outcall("[DUNNO WHAT TO DO!!!]\n")
             end
@@ -120,7 +122,60 @@ function interpit.interp(ast, state, incall, outcall)
     end
 
     interp_stmt_list(ast)
+
+
+
+----[[
+        --seven functions
+    --  -Find_variable          --takes AST, returns name, index ("NONE" for simple variable)   
+    --                          --name/index are both passed below to the variable functions
+    --find_variable, eval_expr will call eachother
+    local function Find_variable()
+        return
+    end
+
+
+    --  -get_variable           -takes name, index, returns value
+    local function get_variable()
+        return
+    end
+
+
+    --  -set_variable          -takes name, index, value, returns nothing
+    local function set_variable()
+        return
+    end
+
+    --  -bool_to_in             
+    local function bool_to_in()
+        return
+    end
+
+
+    --  -eval_expr              
+    local function eval_expr()
+        return
+    --                          -takes an AST, returns a value (number)
+    --                          --if ast[1] == NUMLIT_VAR then
+    --                          --.... happens
+    --                          --elseif ast[1] == ID_VAL
+    --                              --or ast[1] == ARRAT_REF
+    --                          --... happens
+    --                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
+    --                          --... happens
+    --                          --elseif ast[1][1] == BIN_OP then
+    --                                  val1 == eval_expr(ast[2])
+    --                                  val2 == eval_expr(ast[2])
+    --                                  return toInt(val1 + val2)
+    --                              -if ast[1][2] == "t" then
+    --                              -... happens
+    --                              -elseiif ast[1][2] == ...
+    end
+
+--]]
+
     return state
+
 end
 
 

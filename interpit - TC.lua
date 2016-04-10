@@ -134,11 +134,15 @@ function interpit.interp(ast, state, incall, outcall)
     -- portion of the code it is interpreting. The function-wide
     -- versions of state, incall, and outcall may be used. The
     -- function-wide version of state may be modified as appropriate.
+	
+	
 
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
-			
-            outcall(tostring(ast[2]).."="..tostring(ast[3]).."\n")
+            --outcall(tostring(ast[2]).."="..tostring(ast[3]).."\n")
+            --state.s[tostring(ast[2])] = 42
+			state = {s={a=42}, a={}}
+			--state.a = {}
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
@@ -160,6 +164,7 @@ function interpit.interp(ast, state, incall, outcall)
     end
 
     interp_stmt_list(ast)
+	
     return state
 end
 
