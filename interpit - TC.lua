@@ -148,7 +148,11 @@ function interpit.interp(ast, state, incall, outcall)
             end
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
-        else
+        elseif (ast[1] == IF_STMT) then
+			--if(ast[2][2] == interp_stmt_list(ast[3])) then
+		elseif (ast[1] == WHILE_STMT) then
+			--
+		else
             outcall("[DUNNO WHAT TO DO!!!]\n")
         end
     end
@@ -162,8 +166,8 @@ function interpit.interp(ast, state, incall, outcall)
 
 
     interp_stmt_list(ast)
-	io.write("42 ")
-	io.write(strToNum(ast[3]))
+	--io.write("42 ")
+	--io.write(strToNum(ast[3]))
 	--io.write(state.s["a"])
     return state
 end
