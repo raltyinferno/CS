@@ -139,7 +139,7 @@ function interpit.interp(ast, state, incall, outcall)
 
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
-            state.s["a"] = strToNum(ast[2])
+            state.s[ast[2][2]] = strToNum(ast[3][2])
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
@@ -160,7 +160,11 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
+
     interp_stmt_list(ast)
+	io.write("42 ")
+	io.write(strToNum(ast[3]))
+	--io.write(state.s["a"])
     return state
 end
 
