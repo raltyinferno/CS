@@ -7,14 +7,14 @@
 -- Test Program for Module interpit
 -- Used in Assignment 6, Exercise A
 
-interpit = require "interpit"  -- Import parseit module
+interpit = require "interpit - TC"  -- Import parseit module
 
 
 -- *********************************************
 -- * YOU MAY WISH TO CHANGE THE FOLLOWING LINE *
 -- *********************************************
 
-exit_on_failure = true
+--exit_on_failure = true
 
 -- If exit_on_failure is true, then:
 -- - On first failing test, we print the input, expected output, and
@@ -91,7 +91,7 @@ end
 
 -- deepcopy
 -- Returns deep copy of given value.
--- From http://lua-users.org/wiki/CopyTable 
+-- From http://lua-users.org/wiki/CopyTable
 function deepcopy(orig)
     local orig_type = type(orig)
     local copy
