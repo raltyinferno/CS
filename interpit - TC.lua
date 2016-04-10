@@ -139,15 +139,12 @@ function interpit.interp(ast, state, incall, outcall)
 
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
-            --outcall(tostring(ast[2]).."="..tostring(ast[3]).."\n")
-            --state.s[tostring(ast[2])] = 42
-			state = {s={a=42}, a={}}
-			--state.a = {}
+			state.s[ast[2][2]]=strToNum(ast[3][2])
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
             else
-                outcall("[DUNNO WHAT TO DO!!!]\n")
+                outcall(ast[2][2])
             end
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
