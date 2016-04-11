@@ -134,7 +134,39 @@ function interpit.interp(ast, state, incall, outcall)
     -- portion of the code it is interpreting. The function-wide
     -- versions of state, incall, and outcall may be used. The
     -- function-wide version of state may be modified as appropriate.
-	
+    
+    local function eval_expr(ast)
+        --  -eval_expr              -takes an AST, returns a value (number) 
+        print("Made it in eval_expr")
+
+        --if ast[1] == NUMLIT_VAR then
+        --        return ast[1][2]
+        --elseif ast[1] == ID_VAL then
+--                              --or ast[1] == ARRAT_REF
+--                          --... happens
+
+        if (ast[2][1][1] == UN_OP) then    ---as the AST is correct, only remaining is table
+                print("Made it in UN_OP")
+                if ast[2][1][2] == "+" then
+                    print("Made it in + thing")
+                    return strToNum(ast[2][2][2])
+                else --this is the minus version
+                    return -(strToNum(ast[2][2][2]))
+                end
+        elseif (ast[2][1][1] == BIN_OP) then
+                print("Made it in BIN_OP")
+--                val1 = eval_expr(ast[2][2][2])
+--                val2 = eval_expr(ast[2][3][2])
+--                return strToNum(val1 + val2)
+                return (strToNum(ast[2][2][2]) + strToNum(ast[2][3][2]))
+--                              -if ast[1][2] == "t" then
+--                              -... happens
+--                              -elseiif ast[1][2] == ...  
+        else
+            print("why are you here")  
+        end
+        print("Made it through")
+    end	
 	
 
     local function interp_stmt(ast)
@@ -152,6 +184,12 @@ function interpit.interp(ast, state, incall, outcall)
 				else
 					outcall("0")
 				end
+            elseif (type(ast[2][1]) == "table") then
+                print("CATS")
+                holder = eval_expr(ast)
+                print(holder)
+                print("Before outcall")
+                outcall(numToStr(holder))
 			else
 				outcall("[DUNNO WHAT TO DO!!!]\n")
             end
@@ -168,24 +206,6 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
-    local function eval_expr(ast)
-        --  -eval_expr              -takes an AST, returns a value (number)
---                          --if ast[1] == NUMLIT_VAR then
---                          --.... happens
---                          --elseif ast[1] == ID_VAL
---                              --or ast[1] == ARRAT_REF
---                          --... happens
---                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
---                          --... happens
---                          --elseif ast[1][1] == BIN_OP then
---                                  val1 == eval_expr(ast[2])
---                                  val2 == eval_expr(ast[2])
---                                  return toInt(val1 + val2)
---                              -if ast[1][2] == "t" then
---                              -... happens
---                              -elseiif ast[1][2] == ...
-        
-    end
 
     local function interp_stmt_list(ast)
         assert(ast[1] == STMT_LIST)
@@ -193,11 +213,7 @@ function interpit.interp(ast, state, incall, outcall)
             interp_stmt(ast[k])
         end
     end
-	
-	local function eval_expr(ast)
-		
-	
-	end
+
 
 
     interp_stmt_list(ast)
