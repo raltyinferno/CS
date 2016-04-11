@@ -28,7 +28,7 @@
 --	-Find_variable			--takes AST, returns name, index ("NONE" for simple variable)	
 --							--name/index are both passed below to the variable functions
 --	-get_variable			-takes name, index, returns value
---	-set__variable			-takes name, index, value, returns nothing
+--	-set_variable			-takes name, index, value, returns nothing
 --	-bool_to_in				
 --	-eval_expr				-takes an AST, returns a value (number)
 --							--if ast[1] == NUMLIT_VAR then
@@ -134,13 +134,17 @@ function interpit.interp(ast, state, incall, outcall)
     -- portion of the code it is interpreting. The function-wide
     -- versions of state, incall, and outcall may be used. The
     -- function-wide version of state may be modified as appropriate.
+	local function get_variable(tab,index)
+		return state.tab[index]
+	end
 	
+	local function set_variable(key,value)
+		state.s[key]=strToNum(value)
+	end
 	
-
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
-			state.s[ast[2][2]]=strToNum(ast[3][2])
-
+			set_variable(ast[2][2],ast[3][2])
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
@@ -148,7 +152,7 @@ function interpit.interp(ast, state, incall, outcall)
 				outcall(ast[2][2])
 			elseif (ast[2][1] == ID_VAL) then
 				if (state.s[ast[2][2]] ~= nil) then
-					outcall(state.s[numToStr(ast[2][2]]))
+					outcall(numToStr(state.s[ast[2][2]]))
 				else
 					outcall("0")
 				end
@@ -174,10 +178,28 @@ function interpit.interp(ast, state, incall, outcall)
             interp_stmt(ast[k])
         end
     end
-	
+	--	-eval_expr				-takes an AST, returns a value (number)
+--							--if ast[1] == NUMLIT_VAR then
+--							--.... happens
+--							--elseif ast[1] == ID_VAL
+--								--or ast[1] == ARRAY_REF
+--							--... happens
+--							--elseif ast[1][1] == UN_OP then	---as the AST is correct, only remaining is table
+--							--... happens
+--							--elseif ast[1][1] == BIN_OP then
+--									val1 == eval_expr(ast[2])
+--									val2 == eval_expr(ast[2])
+--									return toInt(val1 + val2)
+--								-if ast[1][2] == "t" then
+--								-... happens
+--								-elseiif ast[1][2] == ...
 	local function eval_expr(ast)
+		if ast[1] == NUMLIT_VAL then
+			return ast[2]
 		
-	
+		
+		
+		end	
 	end
 
 
