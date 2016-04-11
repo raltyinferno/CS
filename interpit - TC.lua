@@ -142,7 +142,7 @@ function interpit.interp(ast, state, incall, outcall)
 			if(ast[2][1] == ID_VAL) then
 				state.s[ast[2][2]]=strToNum(ast[3][2])
 			elseif(ast[2][1] == ARRAY_REF) then
-				state.a["a"] = { [2] = strToNum("7")	}
+				state.a[ast[2][2][2]] = { [strToNum(ast[2][3][2])] = strToNum(ast[3][2])	}
 			else
 				outcall("[DUNNO WHAT TO DO!!!]\n")
 			end
