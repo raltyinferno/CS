@@ -162,6 +162,17 @@ function interpit.interp(ast, state, incall, outcall)
 				else
 					outcall("0")
 				end
+			elseif (ast[2][1] == ARRAY_REF) then
+				if(state.a[ast[2][2][2]] ~= nil) then
+					if(state.a[ast[2][2][2]][strToNum(ast[2][3][2])] ~= nil) then
+						outcall(numToStr(state.a[ast[2][2][2]][strToNum(ast[2][3][2])]))
+					else
+						outcall("0")
+					end
+				else
+					outcall("0")
+				end
+				--outcall(numToStr(state.a[ast[5][2]]))
 			else
 				outcall("[DUNNO WHAT TO DO!!!]\n")
             end
