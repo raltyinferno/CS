@@ -157,7 +157,53 @@ function interpit.interp(ast, state, incall, outcall)
 --                val1 = eval_expr(ast[2][2][2])
 --                val2 = eval_expr(ast[2][3][2])
 --                return strToNum(val1 + val2)
-                return (strToNum(ast[2][2][2]) + strToNum(ast[2][3][2]))
+                if (ast[2][1][2] == "+") then
+                    return (strToNum(ast[2][2][2]) + strToNum(ast[2][3][2]))
+                elseif (ast[2][1][2] == "-") then
+                    return (strToNum(ast[2][2][2]) - strToNum(ast[2][3][2]))
+                elseif (ast[2][1][2] == "*") then
+                    return (strToNum(ast[2][2][2]) * strToNum(ast[2][3][2]))
+                elseif (ast[2][1][2] == "/") then
+                    return toInt((strToNum(ast[2][2][2]) / strToNum(ast[2][3][2])))
+                elseif (ast[2][1][2] == "%") then
+                    return (strToNum(ast[2][2][2]) % strToNum(ast[2][3][2]))
+                elseif (ast[2][1][2] == "==") then
+                        if (strToNum(ast[2][2][2]) == strToNum(ast[2][3][2])) then
+                            return 1;
+                        else 
+                            return 0;
+                        end
+                elseif (ast[2][1][2] == "!=") then
+                        if (strToNum(ast[2][2][2]) ~= strToNum(ast[2][3][2])) then
+                            return 1;
+                        else 
+                            return 0;
+                        end
+                 elseif (ast[2][1][2] == "<") then
+                        if (strToNum(ast[2][2][2]) < strToNum(ast[2][3][2])) then
+                            return 1;
+                        else 
+                            return 0;
+                        end
+                elseif (ast[2][1][2] == ">") then
+                        if (strToNum(ast[2][2][2]) > strToNum(ast[2][3][2])) then
+                            return 1;
+                        else 
+                            return 0;
+                        end
+                 elseif (ast[2][1][2] == "<=") then
+                        if (strToNum(ast[2][2][2]) <= strToNum(ast[2][3][2])) then
+                            return 1;
+                        else 
+                            return 0;
+                        end
+                elseif (ast[2][1][2] == ">=") then
+                        if (strToNum(ast[2][2][2]) >= strToNum(ast[2][3][2])) then
+                            return 1;
+                        else 
+                            return 0;
+                        end      
+                end
 --                              -if ast[1][2] == "t" then
 --                              -... happens
 --                              -elseiif ast[1][2] == ...  
