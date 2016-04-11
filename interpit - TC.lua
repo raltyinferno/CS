@@ -8,45 +8,45 @@
 -- * To run a Zebu program, use zebu.lua (which calls this module). *
 -- ******************************************************************
 
------------ Assignment Notes:	-----------
---	-DRY: write a function to do something, then when you need to do that, call the function
---	-Assue AST is formatted correctly
---	-Write all functions local to interpit.interp
---		--pass around ASTs
---		--do not pass around state, incall, outcall
---	-l-values occur:
---		--paramter of input
---		--lhs of set
---	-expressions occur
---		--parameter of print
---		--rhs of set
---		--array index
---		--inside expressions
+----------- Assignment Notes:   -----------
+--  -DRY: write a function to do something, then when you need to do that, call the function
+--  -Assue AST is formatted correctly
+--  -Write all functions local to interpit.interp
+--      --pass around ASTs
+--      --do not pass around state, incall, outcall
+--  -l-values occur:
+--      --paramter of input
+--      --lhs of set
+--  -expressions occur
+--      --parameter of print
+--      --rhs of set
+--      --array index
+--      --inside expressions
 --
 
 --seven functions
---	-Find_variable			--takes AST, returns name, index ("NONE" for simple variable)	
---							--name/index are both passed below to the variable functions
---	-get_variable			-takes name, index, returns value
---	-set__variable			-takes name, index, value, returns nothing
---	-bool_to_in				
---	-eval_expr				-takes an AST, returns a value (number)
---							--if ast[1] == NUMLIT_VAR then
---							--.... happens
---							--elseif ast[1] == ID_VAL
---								--or ast[1] == ARRAT_REF
---							--... happens
---							--elseif ast[1][1] == UN_OP then	---as the AST is correct, only remaining is table
---							--... happens
---							--elseif ast[1][1] == BIN_OP then
---									val1 == eval_expr(ast[2])
---									val2 == eval_expr(ast[2])
---									return toInt(val1 + val2)
---								-if ast[1][2] == "t" then
---								-... happens
---								-elseiif ast[1][2] == ...
---	-interp_stmt
---	-interp_stmt_list
+--  -Find_variable          --takes AST, returns name, index ("NONE" for simple variable)   
+--                          --name/index are both passed below to the variable functions
+--  -get_variable           -takes name, index, returns value
+--  -set__variable          -takes name, index, value, returns nothing
+--  -bool_to_in             
+--  -eval_expr              -takes an AST, returns a value (number)
+--                          --if ast[1] == NUMLIT_VAR then
+--                          --.... happens
+--                          --elseif ast[1] == ID_VAL
+--                              --or ast[1] == ARRAT_REF
+--                          --... happens
+--                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
+--                          --... happens
+--                          --elseif ast[1][1] == BIN_OP then
+--                                  val1 == eval_expr(ast[2])
+--                                  val2 == eval_expr(ast[2])
+--                                  return toInt(val1 + val2)
+--                              -if ast[1][2] == "t" then
+--                              -... happens
+--                              -elseiif ast[1][2] == ...
+--  -interp_stmt
+--  -interp_stmt_list
 
 --find_variable, eval_expr will call eachother
 
@@ -166,42 +166,42 @@ function interpit.interp(ast, state, incall, outcall)
             print("why are you here")  
         end
         print("Made it through")
-    end	
-	
+    end 
+    
 
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
-			state.s[ast[2][2]]=strToNum(ast[3][2])
+            state.s[ast[2][2]]=strToNum(ast[3][2])
 
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
             elseif (ast[2][1] == NUMLIT_VAL) then
-				outcall(ast[2][2])
-			elseif (ast[2][1] == ID_VAL) then
-				if (state.s[ast[2][2]] ~= nil) then
-					outcall(numToStr(state.s[ast[2][2]]))
-				else
-					outcall("0")
-				end
+                outcall(ast[2][2])
+            elseif (ast[2][1] == ID_VAL) then
+                if (state.s[ast[2][2]] ~= nil) then
+                    outcall(numToStr(state.s[ast[2][2]]))
+                else
+                    outcall("0")
+                end
             elseif (type(ast[2][1]) == "table") then
                 print("CATS")
                 holder = eval_expr(ast)
                 print(holder)
                 print("Before outcall")
                 outcall(numToStr(holder))
-			else
-				outcall("[DUNNO WHAT TO DO!!!]\n")
+            else
+                outcall("[DUNNO WHAT TO DO!!!]\n")
             end
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
         elseif (ast[1] == IF_STMT) then
-			--if(ast[2][2] == interp_stmt_list(ast[3])) then
-		elseif (ast[1] == WHILE_STMT) then
-			--
-		elseif (ast[1] == INPUT_STMT) then
-			state.s[ast[2][2]] = strToNum(incall())
-		else
+            --if(ast[2][2] == interp_stmt_list(ast[3])) then
+        elseif (ast[1] == WHILE_STMT) then
+            --
+        elseif (ast[1] == INPUT_STMT) then
+            state.s[ast[2][2]] = strToNum(incall())
+        else
             outcall("[DUNNO WHAT TO DO!!!]\n")
         end
     end
@@ -217,9 +217,9 @@ function interpit.interp(ast, state, incall, outcall)
 
 
     interp_stmt_list(ast)
-	--io.write("42 ")
-	--io.write(strToNum(ast[3]))
-	--io.write(state.s["a"])
+    --io.write("42 ")
+    --io.write(strToNum(ast[3]))
+    --io.write(state.s["a"])
     return state
 end
 
