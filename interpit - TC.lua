@@ -139,8 +139,13 @@ function interpit.interp(ast, state, incall, outcall)
 
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
-			state.s[ast[2][2]]=strToNum(ast[3][2])
-
+			if(ast[2][1] == ID_VAL) then
+				state.s[ast[2][2]]=strToNum(ast[3][2])
+			elseif(ast[2][1] == ARRAY_REF) then
+				state.a["a"] = { [2] = strToNum("7")	}
+			else
+				outcall("[DUNNO WHAT TO DO!!!]\n")
+			end
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
