@@ -294,10 +294,6 @@ function interpit.interp(ast, state, incall, outcall)
 
 
     interp_stmt_list(ast)
-    --io.write("42 ")
-    --io.write(strToNum(ast[3]))
-    print(state.s["y"])
-	print(state.s["x"])
     return state
 end
 
