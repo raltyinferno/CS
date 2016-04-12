@@ -265,6 +265,7 @@ function interpit.interp(ast, state, incall, outcall)
 							for j = 2, #ast[k+1] do
 								interp_stmt(ast[k+1][j])
 							end
+							return
 						end
 					end
 				end
