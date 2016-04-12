@@ -1040,7 +1040,7 @@ function test_if(t)
     expoutput = {}
     expstateout = deepcopy(emptystate)
     checkInterp(t, ast, input, statein, expoutput, expstateout,
-      "If #1")
+      "If #2")
 
     -- If-else #1
     ast = {STMT_LIST, {IF_STMT,

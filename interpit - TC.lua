@@ -134,138 +134,144 @@ function interpit.interp(ast, state, incall, outcall)
     -- portion of the code it is interpreting. The function-wide
     -- versions of state, incall, and outcall may be used. The
     -- function-wide version of state may be modified as appropriate.
-     local function eval_expr(ast)
-        --  -eval_expr              -takes an AST, returns a value (number) 
-        print("Made it in eval_expr")
-
-        --if ast[1] == NUMLIT_VAR then
-        --        return ast[1][2]
-        --elseif ast[1] == ID_VAL then
---                              --or ast[1] == ARRAT_REF
---                          --... happens
-
-        if (ast[2][1][1] == UN_OP) then    ---as the AST is correct, only remaining is table
-                print("Made it in UN_OP")
-                if ast[2][1][2] == "+" then
-                    print("Made it in + thing")
-                    return strToNum(ast[2][2][2])
-                else --this is the minus version
-                    return -(strToNum(ast[2][2][2]))
-                end
-        elseif (ast[2][1][1] == BIN_OP) then
-                print("Made it in BIN_OP")
---                val1 = eval_expr(ast[2][2][2])
---                val2 = eval_expr(ast[2][3][2])
---                return strToNum(val1 + val2)
-                if (ast[2][1][2] == "+") then
-                    return (strToNum(ast[2][2][2]) + strToNum(ast[2][3][2]))
-                elseif (ast[2][1][2] == "-") then
-                    return (strToNum(ast[2][2][2]) - strToNum(ast[2][3][2]))
-                elseif (ast[2][1][2] == "*") then
-                    return (strToNum(ast[2][2][2]) * strToNum(ast[2][3][2]))
-                elseif (ast[2][1][2] == "/") then
-                    return toInt((strToNum(ast[2][2][2]) / strToNum(ast[2][3][2])))
-                elseif (ast[2][1][2] == "%") then
-                    return (strToNum(ast[2][2][2]) % strToNum(ast[2][3][2]))
-                elseif (ast[2][1][2] == "==") then
-                        if (strToNum(ast[2][2][2]) == strToNum(ast[2][3][2])) then
-                            return 1;
-                        else 
-                            return 0;
-                        end
-                elseif (ast[2][1][2] == "!=") then
-                        if (strToNum(ast[2][2][2]) ~= strToNum(ast[2][3][2])) then
-                            return 1;
-                        else 
-                            return 0;
-                        end
-                 elseif (ast[2][1][2] == "<") then
-                        if (strToNum(ast[2][2][2]) < strToNum(ast[2][3][2])) then
-                            return 1;
-                        else 
-                            return 0;
-                        end
-                elseif (ast[2][1][2] == ">") then
-                        if (strToNum(ast[2][2][2]) > strToNum(ast[2][3][2])) then
-                            return 1;
-                        else 
-                            return 0;
-                        end
-                 elseif (ast[2][1][2] == "<=") then
-                        if (strToNum(ast[2][2][2]) <= strToNum(ast[2][3][2])) then
-                            return 1;
-                        else 
-                            return 0;
-                        end
-                elseif (ast[2][1][2] == ">=") then
-                        if (strToNum(ast[2][2][2]) >= strToNum(ast[2][3][2])) then
-                            return 1;
-                        else 
-                            return 0;
-                        end      
-                end
---                              -if ast[1][2] == "t" then
---                              -... happens
---                              -elseiif ast[1][2] == ...  
-        else
-            print("why are you here")  
-        end
-        print("Made it through")
-    end 
-
-
-    local function get_variable(tab,index)
-        return state.tab[index]
+    local function get_variable(tab,index,key)
+		if tab == "s" then
+			if state[tab][index] == nil then
+				return 0
+			else
+				return state[tab][index]
+			end
+		else
+			if state[tab][index] == nil then
+				return 0
+			elseif state[tab][index][key] == nil then
+				return 0
+			else
+				return state[tab][index][key]
+			end
+		end
     end
     
     local function set_variable(key,value)
-        state.s[key]=strToNum(value)
+			state.s[key]=strToNum(value)
     end
+	
+    local function eval_expr(ast)
+		
+		if ast[1] == NUMLIT_VAL then
+			return strToNum(ast[2])
+		elseif ast[1] == ID_VAL then
+			return get_variable("s",ast[2],0)
+		elseif ast[1] == ARRAY_REF then
+			return get_variable("a",ast[2][2], eval_expr(ast[3]))
+		elseif ast[1][1] == UN_OP then
+			if ast[1][2] == "-" then
+				return -(eval_expr(ast[2]))
+			else
+				return eval_expr(ast[2])
+			end
+		elseif ast[1][1] == BIN_OP then
+			if ast[1][2] == "==" then
+				if eval_expr(ast[2]) == eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "!=" then
+				if eval_expr(ast[2]) ~= eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "<=" then
+				if eval_expr(ast[2]) <= eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == ">=" then
+				if eval_expr(ast[2]) >= eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "<" then
+				if eval_expr(ast[2]) < eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == ">" then
+				if eval_expr(ast[2]) > eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "+" then
+				return eval_expr(ast[2])+eval_expr(ast[3])
+			elseif ast[1][2] == "-" then
+				return eval_expr(ast[2])-eval_expr(ast[3])
+			elseif ast[1][2] == "*" then
+				return eval_expr(ast[2])*eval_expr(ast[3])
+			elseif ast[1][2] == "/" then
+				return toInt(eval_expr(ast[2])/eval_expr(ast[3]))
+			elseif ast[1][2] == "%" then
+				return eval_expr(ast[2])%eval_expr(ast[3])
+			end
+		end
+    end 
+
+
+	local interp_stmt_list
     
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
             if(ast[2][1] == ID_VAL) then
                 set_variable(ast[2][2],ast[3][2])
             elseif(ast[2][1] == ARRAY_REF) then
+				--set_variable("a",ast[2][2][2],ast[2][3][2],strToNum(ast[3][2]))
                 state.a[ast[2][2][2]] = { [strToNum(ast[2][3][2])] = strToNum(ast[3][2])    }
             else
                 outcall("[DUNNO WHAT TO DO!!!]\n")
             end
         elseif (ast[1] == PRINT_STMT) then
+			
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
-            elseif (ast[2][1] == NUMLIT_VAL) then
-                outcall(ast[2][2])
-            elseif (ast[2][1] == ID_VAL) then
-                if (state.s[ast[2][2]] ~= nil) then
-                    outcall(numToStr(state.s[ast[2][2]]))
-                else
-                    outcall("0")
-                end
-            elseif (ast[2][1] == ARRAY_REF) then
-                if(state.a[ast[2][2][2]] ~= nil) then
-                    if(state.a[ast[2][2][2]][strToNum(ast[2][3][2])] ~= nil) then
-                        outcall(numToStr(state.a[ast[2][2][2]][strToNum(ast[2][3][2])]))
-                    else
-                        outcall("0")
-                    end
-                else
-                    outcall("0")
-                end
-                --outcall(numToStr(state.a[ast[5][2]]))
-            elseif (type(ast[2][1]) == "table") then
-                print("CATS")
-                holder = eval_expr(ast)
-                print(holder)
-                print("Before outcall")
-                outcall(numToStr(holder))
-            else
-                outcall("[DUNNO WHAT TO DO!!!]\n")
+			else
+				outcall(numToStr(eval_expr(ast[2])))
             end
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
         elseif (ast[1] == IF_STMT) then
-            --if(ast[2][2] == interp_stmt_list(ast[3])) then
+            if eval_expr(ast[2]) ~= 0 then
+				assert(ast[3][1] == STMT_LIST)
+				for k = 2, #ast[3] do
+					interp_stmt(ast[3][k])
+				end
+				
+			elseif ast[4] ~= nil then
+				if ast[4][1] == STMT_LIST  then
+					for k = 2, #ast[4] do
+						interp_stmt(ast[4][k])
+					end
+				else
+					for k = 4, #ast, 2 do
+						if ast[k] ~= nil then
+							if ast[k][1] == STMT_LIST then
+								for j = 2, #ast[k] do
+									interp_stmt(ast[k][j])
+								end
+							elseif eval_expr(ast[k]) ~= 0 then
+								assert(ast[k+1][1] ==STMT_LIST)
+								for j = 2, #ast[k+1] do
+									interp_stmt(ast[k+1][j])
+								end
+							end
+						end
+					end
+				end
+			end
         elseif (ast[1] == WHILE_STMT) then
             --
         elseif (ast[1] == INPUT_STMT) then
@@ -275,53 +281,13 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
-    local function eval_expr(ast)
-        --  -eval_expr              -takes an AST, returns a value (number)
---                          --if ast[1] == NUMLIT_VAR then
---                          --.... happens
---                          --elseif ast[1] == ID_VAL
---                              --or ast[1] == ARRAT_REF
---                          --... happens
---                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
---                          --... happens
---                          --elseif ast[1][1] == BIN_OP then
---                                  val1 == eval_expr(ast[2])
---                                  val2 == eval_expr(ast[2])
---                                  return toInt(val1 + val2)
---                              -if ast[1][2] == "t" then
---                              -... happens
---                              -elseiif ast[1][2] == ...
-        
-    end
+
 
     local function interp_stmt_list(ast)
         assert(ast[1] == STMT_LIST)
         for k = 2, #ast do
             interp_stmt(ast[k])
         end
-    end
-    --  -eval_expr              -takes an AST, returns a value (number)
---                          --if ast[1] == NUMLIT_VAR then
---                          --.... happens
---                          --elseif ast[1] == ID_VAL
---                              --or ast[1] == ARRAY_REF
---                          --... happens
---                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
---                          --... happens
---                          --elseif ast[1][1] == BIN_OP then
---                                  val1 == eval_expr(ast[2])
---                                  val2 == eval_expr(ast[2])
---                                  return toInt(val1 + val2)
---                              -if ast[1][2] == "t" then
---                              -... happens
---                              -elseiif ast[1][2] == ...
-    local function eval_expr(ast)
-        if ast[1] == NUMLIT_VAL then
-            return ast[2]
-        
-        
-        
-        end 
     end
 
 
