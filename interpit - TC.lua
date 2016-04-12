@@ -134,6 +134,7 @@ function interpit.interp(ast, state, incall, outcall)
     -- portion of the code it is interpreting. The function-wide
     -- versions of state, incall, and outcall may be used. The
     -- function-wide version of state may be modified as appropriate.
+
     local function get_variable(tab,index,key)
 		if tab == "s" then
 			if state[tab][index] == nil then
@@ -238,6 +239,7 @@ function interpit.interp(ast, state, incall, outcall)
 			
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
+
 			else
 				outcall(numToStr(eval_expr(ast[2])))
             end
@@ -294,7 +296,8 @@ function interpit.interp(ast, state, incall, outcall)
     interp_stmt_list(ast)
     --io.write("42 ")
     --io.write(strToNum(ast[3]))
-    --io.write(state.s["a"])
+    print(state.s["y"])
+	print(state.s["x"])
     return state
 end
 
