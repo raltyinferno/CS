@@ -251,24 +251,19 @@ function interpit.interp(ast, state, incall, outcall)
 				for k = 2, #ast[3] do
 					interp_stmt(ast[3][k])
 				end
-				
-			elseif ast[4] ~= nil then
-				if ast[4][1] == STMT_LIST  then
-					for k = 2, #ast[4] do
-						interp_stmt(ast[4][k])
-					end
-				else
-					for k = 4, #ast, 2 do
-						if ast[k] ~= nil then
-							if ast[k][1] == STMT_LIST then
-								for j = 2, #ast[k] do
-									interp_stmt(ast[k][j])
-								end
-							elseif eval_expr(ast[k]) ~= 0 then
-								assert(ast[k+1][1] ==STMT_LIST)
-								for j = 2, #ast[k+1] do
-									interp_stmt(ast[k+1][j])
-								end
+			else
+				for k = 4, #ast, 2 do
+					if ast[k] ~= nil then
+						if ast[k][1] == STMT_LIST then
+							for j = 2, #ast[k] do
+								interp_stmt(ast[k][j])
+							end
+						elseif eval_expr(ast[k]) ~= 0 then
+							print("else-if:triggered!!!!")
+							print(eval_expr(ast[k]))
+							assert(ast[k+1][1] ==STMT_LIST)
+							for j = 2, #ast[k+1] do
+								interp_stmt(ast[k+1][j])
 							end
 						end
 					end
