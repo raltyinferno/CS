@@ -265,6 +265,18 @@ function interpit.interp(ast, state, incall, outcall)
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
         elseif (ast[1] == IF_STMT) then
+--[[			if(ast[1][2][2] ~= nil) then
+				if(numToStr(ast[1][2][2]) ~= 0) then --check if numlit?
+					assert(ast[1][3][1] == STMT_LIST)
+					io.write("we made it")
+					interp_stmt(ast[1][3][2])
+				else
+					io.write("fell at the if, nil but 0")
+				end
+
+			else
+				io.write("counted as nil")
+			end]]
             --if(ast[2][2] == interp_stmt_list(ast[3])) then
         elseif (ast[1] == WHILE_STMT) then
             --
