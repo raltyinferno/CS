@@ -148,9 +148,26 @@ function interpit.interp(ast, state, incall, outcall)
                 print("Made it in UN_OP")
                 if ast[1][2] == "+" then
                     print("Made it in + thing")
-                    return strToNum(ast[2][2])
+					if(ast[2][1] == BIN_OP) then
+						return eval_expr(ast[2])
+					elseif(ast[2][1] == UN_OP) then
+						return eval_expr(ast[2])
+					else
+						return strToNum(ast[2][2])
+					end
+
                 else --this is the minus version
-                    return -(strToNum(ast[2][2]))
+					print("Made it in - thing")
+					if(ast[2][1] == BIN_OP) then
+					    print("Made it in -binop")
+						return -eval_expr(ast[2])
+					elseif(ast[2][1] == UN_OP) then
+						print("Made it in -unop")
+						return -eval_expr(ast[2])
+					else
+						print("plain -num")
+						return -(strToNum(ast[2][2]))
+					end
                 end
         elseif (ast[1][1] == BIN_OP) then
                 print("Made it in BIN_OP")
@@ -254,10 +271,13 @@ function interpit.interp(ast, state, incall, outcall)
                 end
                 --outcall(numToStr(state.a[ast[5][2]]))
             elseif (type(ast[2][1]) == "table") then
-                print("CATS")
+               -- print("CATS")
                 holder = eval_expr(ast[2])
-                print(holder)
-                print("Before outcall")
+               -- print(holder)
+               -- print("Before outcall")
+			   print("")
+			   print(numToStr(holder))
+			   print("")
                 outcall(numToStr(holder))
             else
                 outcall("[DUNNO WHAT TO DO!!!]\n")
@@ -265,18 +285,21 @@ function interpit.interp(ast, state, incall, outcall)
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
         elseif (ast[1] == IF_STMT) then
---[[			if(ast[1][2][2] ~= nil) then
-				if(numToStr(ast[1][2][2]) ~= 0) then --check if numlit?
-					assert(ast[1][3][1] == STMT_LIST)
+			if(ast[2][2] ~= nil) then
+				if(numToStr(ast[2][2]) ~= 0) then --check if numlit?
+					assert(ast[3][1] == STMT_LIST)
 					io.write("we made it")
-					interp_stmt(ast[1][3][2])
+					--interp_stmt_list(ast[3])
+					for k = 4, #ast do
+						interp_stmt(ast[k])
+					end
 				else
 					io.write("fell at the if, nil but 0")
 				end
 
 			else
 				io.write("counted as nil")
-			end]]
+			end
             --if(ast[2][2] == interp_stmt_list(ast[3])) then
         elseif (ast[1] == WHILE_STMT) then
             --
@@ -287,24 +310,7 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
-    local function eval_expr(ast)
-        --  -eval_expr              -takes an AST, returns a value (number)
---                          --if ast[1] == NUMLIT_VAR then
---                          --.... happens
---                          --elseif ast[1] == ID_VAL
---                              --or ast[1] == ARRAT_REF
---                          --... happens
---                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
---                          --... happens
---                          --elseif ast[1][1] == BIN_OP then
---                                  val1 == eval_expr(ast[2])
---                                  val2 == eval_expr(ast[2])
---                                  return toInt(val1 + val2)
---                              -if ast[1][2] == "t" then
---                              -... happens
---                              -elseiif ast[1][2] == ...
-        
-    end
+
 
     local function interp_stmt_list(ast)
         assert(ast[1] == STMT_LIST)
@@ -327,20 +333,14 @@ function interpit.interp(ast, state, incall, outcall)
 --                              -if ast[1][2] == "t" then
 --                              -... happens
 --                              -elseiif ast[1][2] == ...
-    local function eval_expr(ast)
-        if ast[1] == NUMLIT_VAL then
-            return ast[2]
-        
-        
-        
-        end 
-    end
+
 
 
     interp_stmt_list(ast)
     --io.write("42 ")
     --io.write(strToNum(ast[3]))
-    --io.write(state.s["a"])
+    print(state.s["y"])
+	print(state.s["x"])
     return state
 end
 
