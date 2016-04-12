@@ -230,7 +230,6 @@ function interpit.interp(ast, state, incall, outcall)
             if(ast[2][1] == ID_VAL) then
                 set_variable(ast[2][2],ast[3][2])
             elseif(ast[2][1] == ARRAY_REF) then
-				--set_variable("a",ast[2][2][2],ast[2][3][2],strToNum(ast[3][2]))
                 state.a[ast[2][2][2]] = { [strToNum(ast[2][3][2])] = strToNum(ast[3][2])    }
             else
                 outcall("[DUNNO WHAT TO DO!!!]\n")
@@ -239,7 +238,6 @@ function interpit.interp(ast, state, incall, outcall)
 			
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
-
 			else
 				outcall(numToStr(eval_expr(ast[2])))
             end
@@ -259,8 +257,6 @@ function interpit.interp(ast, state, incall, outcall)
 								interp_stmt(ast[k][j])
 							end
 						elseif eval_expr(ast[k]) ~= 0 then
-							print("else-if:triggered!!!!")
-							print(eval_expr(ast[k]))
 							assert(ast[k+1][1] ==STMT_LIST)
 							for j = 2, #ast[k+1] do
 								interp_stmt(ast[k+1][j])
@@ -271,7 +267,12 @@ function interpit.interp(ast, state, incall, outcall)
 				end
 			end
         elseif (ast[1] == WHILE_STMT) then
-            --
+            while eval_expr(ast[2]) ~= 0 do
+				assert(ast[3][1] == STMT_LIST)
+				for k = 2, #ast[k] do
+					interp_stmt(ast[3][k])
+				end
+			end
         elseif (ast[1] == INPUT_STMT) then
             state.s[ast[2][2]] = strToNum(incall())
         else
