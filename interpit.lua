@@ -1,22 +1,11 @@
--- interpit.lua (UNFINISHED)
--- Glenn G. Chappell
--- 30 Mar 2016
---
--- For CS 331 Spring 2016
--- Interpret AST from parseit.parse
--- For Assignment 6, Exercise A
+--Kai Davids Schell
+--4/10/16
+--CS331 Assignment 6
+--interpit.lua
+--Interpreter module for the Zebu language
 
 
--- ******************************************************************
--- * To run a Zebu program, use zebu.lua (which calls this module). *
--- ******************************************************************
-
-
-local interpit = {}  -- Our module
-
-
--- ***** Variables *****
-
+local interpit = {}
 
 -- Symbolic Constants for AST
 
@@ -73,11 +62,7 @@ function numToStr(n)
 end
 
 
--- ***** Primary Function for Client Code *****
 
-
--- interp
--- Interpreter, given AST returned by parseit.parse.
 -- Parameters:
 --   ast     - AST constructed by parseit.parse
 --   state   - Table holding values of Zebu integer variables
@@ -91,26 +76,147 @@ end
 -- Return Value:
 --   state updated with changed variable values
 function interpit.interp(ast, state, incall, outcall)
-    -- Each local interpretation function is given the AST for the
-    -- portion of the code it is interpreting. The function-wide
-    -- versions of state, incall, and outcall may be used. The
-    -- function-wide version of state may be modified as appropriate.
 
+    local function get_variable(tab,index,key)
+		if tab == "s" then
+			if state[tab][index] == nil then
+				return 0
+			else
+				return strToNum(state[tab][index])
+			end
+		else
+			if state[tab][index] == nil then
+				return 0
+			elseif state[tab][index][key] == nil then
+				return 0
+			else
+				return strToNum(state[tab][index][key])
+			end
+		end
+    end
+    
+    local function set_variable(key,value)
+			state.s[key]=strToNum(value)
+    end
+	
+    local function eval_expr(ast)
+		
+		if ast[1] == NUMLIT_VAL then
+			return strToNum(ast[2])
+		elseif ast[1] == ID_VAL then
+			return get_variable("s",ast[2],0)
+		elseif ast[1] == ARRAY_REF then
+			return get_variable("a",ast[2][2], eval_expr(ast[3]))
+		elseif ast[1][1] == UN_OP then
+			if ast[1][2] == "-" then
+				return -(eval_expr(ast[2]))
+			else
+				return eval_expr(ast[2])
+			end
+		elseif ast[1][1] == BIN_OP then
+			if ast[1][2] == "==" then
+				if eval_expr(ast[2]) == eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "!=" then
+				if eval_expr(ast[2]) ~= eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "<=" then
+				if eval_expr(ast[2]) <= eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == ">=" then
+				if eval_expr(ast[2]) >= eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "<" then
+				if eval_expr(ast[2]) < eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == ">" then
+				if eval_expr(ast[2]) > eval_expr(ast[3]) then
+					return 1
+				else 
+					return 0
+				end
+			elseif ast[1][2] == "+" then
+				return eval_expr(ast[2])+eval_expr(ast[3])
+			elseif ast[1][2] == "-" then
+				return eval_expr(ast[2])-eval_expr(ast[3])
+			elseif ast[1][2] == "*" then
+				return eval_expr(ast[2])*eval_expr(ast[3])
+			elseif ast[1][2] == "/" then
+				return toInt(eval_expr(ast[2])/eval_expr(ast[3]))
+			elseif ast[1][2] == "%" then
+				return eval_expr(ast[2])%eval_expr(ast[3])
+			end
+		end
+    end 
+	
+    
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
-            outcall("[DUNNO WHAT TO DO!!!]\n")
+            if(ast[2][1] == ID_VAL) then
+                set_variable(ast[2][2],ast[3][2])
+            elseif(ast[2][1] == ARRAY_REF) then
+                state.a[ast[2][2][2]] = { [strToNum(ast[2][3][2])] = strToNum(ast[3][2])    }
+            end
         elseif (ast[1] == PRINT_STMT) then
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
-            else
-                outcall("[DUNNO WHAT TO DO!!!]\n")
+			else
+				outcall(numToStr(eval_expr(ast[2])))
             end
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
-        else
-            outcall("[DUNNO WHAT TO DO!!!]\n")
+        elseif (ast[1] == IF_STMT) then
+            if eval_expr(ast[2]) ~= 0 then
+				for k = 2, #ast[3] do
+					interp_stmt(ast[3][k])
+				end
+			else
+				for k = 4, #ast, 2 do
+					if ast[k] ~= nil then
+						if ast[k][1] == STMT_LIST then
+							for j = 2, #ast[k] do
+								interp_stmt(ast[k][j])
+							end
+						elseif eval_expr(ast[k]) ~= 0 then
+							for j = 2, #ast[k+1] do
+								interp_stmt(ast[k+1][j])
+							end
+							return
+						end
+					end
+				end
+			end
+        elseif (ast[1] == WHILE_STMT) then
+            while eval_expr(ast[2]) ~= 0 do
+				for k = 2, #ast[3] do
+					interp_stmt(ast[3][k])
+				end
+			end
+        elseif (ast[1] == INPUT_STMT) then
+			if ast[2][1] == ID_VAL then
+				set_variable(ast[2][2],incall())
+			elseif ast[2][1] == ARRAY_REF then
+				state.a[ast[2][2][2]][eval_expr(ast[2][3])] = strToNum(incall())
+			end
         end
     end
+
+
 
     local function interp_stmt_list(ast)
         assert(ast[1] == STMT_LIST)
@@ -118,6 +224,7 @@ function interpit.interp(ast, state, incall, outcall)
             interp_stmt(ast[k])
         end
     end
+
 
     interp_stmt_list(ast)
     return state

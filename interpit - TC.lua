@@ -1,61 +1,11 @@
--- Tristan Craddick
--- 30 Mar 2016
---
--- For CS 331 Spring 2016
+--Kai Davids Schell
+--4/10/16
+--CS331 Assignment 6
+--interpit.lua
+--Interpreter module for the Zebu language
 
 
--- ******************************************************************
--- * To run a Zebu program, use zebu.lua (which calls this module). *
--- ******************************************************************
-
------------ Assignment Notes:   -----------
---  -DRY: write a function to do something, then when you need to do that, call the function
---  -Assue AST is formatted correctly
---  -Write all functions local to interpit.interp
---      --pass around ASTs
---      --do not pass around state, incall, outcall
---  -l-values occur:
---      --paramter of input
---      --lhs of set
---  -expressions occur
---      --parameter of print
---      --rhs of set
---      --array index
---      --inside expressions
---
-
---seven functions
---  -Find_variable          --takes AST, returns name, index ("NONE" for simple variable)   
---                          --name/index are both passed below to the variable functions
---  -get_variable           -takes name, index, returns value
---  -set_variable           -takes name, index, value, returns nothing
---  -bool_to_in             
---  -eval_expr              -takes an AST, returns a value (number)
---                          --if ast[1] == NUMLIT_VAR then
---                          --.... happens
---                          --elseif ast[1] == ID_VAL
---                              --or ast[1] == ARRAT_REF
---                          --... happens
---                          --elseif ast[1][1] == UN_OP then    ---as the AST is correct, only remaining is table
---                          --... happens
---                          --elseif ast[1][1] == BIN_OP then
---                                  val1 == eval_expr(ast[2])
---                                  val2 == eval_expr(ast[2])
---                                  return toInt(val1 + val2)
---                              -if ast[1][2] == "t" then
---                              -... happens
---                              -elseiif ast[1][2] == ...
---  -interp_stmt
---  -interp_stmt_list
-
---find_variable, eval_expr will call eachother
-
-
-local interpit = {}  -- Our module
-
-
--- ***** Variables *****
-
+local interpit = {}
 
 -- Symbolic Constants for AST
 
@@ -112,11 +62,7 @@ function numToStr(n)
 end
 
 
--- ***** Primary Function for Client Code *****
 
-
--- interp
--- Interpreter, given AST returned by parseit.parse.
 -- Parameters:
 --   ast     - AST constructed by parseit.parse
 --   state   - Table holding values of Zebu integer variables
@@ -130,17 +76,13 @@ end
 -- Return Value:
 --   state updated with changed variable values
 function interpit.interp(ast, state, incall, outcall)
-    -- Each local interpretation function is given the AST for the
-    -- portion of the code it is interpreting. The function-wide
-    -- versions of state, incall, and outcall may be used. The
-    -- function-wide version of state may be modified as appropriate.
 
     local function get_variable(tab,index,key)
 		if tab == "s" then
 			if state[tab][index] == nil then
 				return 0
 			else
-				return state[tab][index]
+				return strToNum(state[tab][index])
 			end
 		else
 			if state[tab][index] == nil then
@@ -148,7 +90,7 @@ function interpit.interp(ast, state, incall, outcall)
 			elseif state[tab][index][key] == nil then
 				return 0
 			else
-				return state[tab][index][key]
+				return strToNum(state[tab][index][key])
 			end
 		end
     end
@@ -221,9 +163,7 @@ function interpit.interp(ast, state, incall, outcall)
 			end
 		end
     end 
-
-
-	local interp_stmt_list
+	
     
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
@@ -231,11 +171,8 @@ function interpit.interp(ast, state, incall, outcall)
                 set_variable(ast[2][2],ast[3][2])
             elseif(ast[2][1] == ARRAY_REF) then
                 state.a[ast[2][2][2]] = { [strToNum(ast[2][3][2])] = strToNum(ast[3][2])    }
-            else
-                outcall("[DUNNO WHAT TO DO!!!]\n")
             end
         elseif (ast[1] == PRINT_STMT) then
-			
             if (ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
 			else
@@ -245,7 +182,6 @@ function interpit.interp(ast, state, incall, outcall)
             outcall("\n")
         elseif (ast[1] == IF_STMT) then
             if eval_expr(ast[2]) ~= 0 then
-				assert(ast[3][1] == STMT_LIST)
 				for k = 2, #ast[3] do
 					interp_stmt(ast[3][k])
 				end
@@ -257,7 +193,6 @@ function interpit.interp(ast, state, incall, outcall)
 								interp_stmt(ast[k][j])
 							end
 						elseif eval_expr(ast[k]) ~= 0 then
-							assert(ast[k+1][1] ==STMT_LIST)
 							for j = 2, #ast[k+1] do
 								interp_stmt(ast[k+1][j])
 							end
@@ -269,14 +204,16 @@ function interpit.interp(ast, state, incall, outcall)
         elseif (ast[1] == WHILE_STMT) then
             while eval_expr(ast[2]) ~= 0 do
 				assert(ast[3][1] == STMT_LIST)
-				for k = 2, #ast[k] do
+				for k = 2, #ast[3] do
 					interp_stmt(ast[3][k])
 				end
 			end
         elseif (ast[1] == INPUT_STMT) then
-            state.s[ast[2][2]] = strToNum(incall())
-        else
-            outcall("[DUNNO WHAT TO DO!!!]\n")
+			if ast[2][1] == ID_VAL then
+				set_variable(ast[2][2],incall())
+			elseif ast[2][1] == ARRAY_REF then
+				state.a[ast[2][2][2]][eval_expr(ast[2][3])] = strToNum(incall())
+			end
         end
     end
 
