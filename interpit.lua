@@ -100,11 +100,10 @@ function interpit.interp(ast, state, incall, outcall)
     end
 	
     local function eval_expr(ast)
-		
 		if ast[1] == NUMLIT_VAL then
 			return strToNum(ast[2])
 		elseif ast[1] == ID_VAL then
-			return get_variable("s",ast[2],0)
+			return get_variable("s",numToStr(ast[2],0))
 		elseif ast[1] == ARRAY_REF then
 			return get_variable("a",ast[2][2], eval_expr(ast[3]))
 		elseif ast[1][1] == UN_OP then
@@ -167,8 +166,9 @@ function interpit.interp(ast, state, incall, outcall)
     
     local function interp_stmt(ast)
         if (ast[1] == SET_STMT) then
+			
             if(ast[2][1] == ID_VAL) then
-                set_variable(ast[2][2],ast[3][2])
+                set_variable(ast[2][2],eval_expr(ast[3]))
             elseif(ast[2][1] == ARRAY_REF) then
                 state.a[ast[2][2][2]] = { [strToNum(ast[2][3][2])] = strToNum(ast[3][2])    }
             end
