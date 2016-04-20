@@ -1,23 +1,33 @@
-\ Scott Corcoran
-\ collcount.fs 
-\ 4/19/2016
+\ Kai Davids Schell
+\ 4/19/16
 \ CS331
-\ The collatz word in forth for Assignment 7 
+\ Assignment 7
+\ collcount.fs
 
 
-\ collcount 
-: collHelper { m n -- COUNT }
-	n 1 = if
-		m
+
+: collatzcount { count n -- c }
+	n 1 =
+	if
+		count
 	else
-		n 2 MOD 0 = if
-			m 1 + n 2 / recurse 
+		n 2 mod
+		0 =
+		if
+			count 1 + 
+			n 2 / 
+			recurse
 		else
-			m 1 + n 3 * 1 + recurse 
-		endif
-	endif
+			count 1 + 
+			n 3 * 
+			1 + 
+			recurse
+		then
+	then
 ;
-
-: collcount { n -- COUNT }
-	0 n collHelper
+	
+: collcount ( n -- c )
+	0 swap
+	collatzcount
 ;
+	
