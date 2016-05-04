@@ -1,49 +1,10 @@
 //Kai Davids Schell
-//5/2/16
-//Assignment 4
 //bureaucracy.cpp
-//ACCURATE BUREAUCRACY SIMULATION
+//Source file for derived classes for bureaucracy
+#ifndef BUREAUCRACY_CLASSES_INCLUDED
+#define BUREAUCRACY_CLASSES_INCLUDED
+#include "bureaucracy.h"
 
-#include <string>
-#include <iostream>
-#include <utility>
-#include <random>
-#include <time.h>
-
-using std::string;
-using std::cout;
-using std::cin;
-using std::endl;
-using std::pair;
-using std::mt19937;
-using std::normal_distribution;
-
-
-class Bureaucrat
-{
-public:
-	virtual void handle(string) = 0;
-	virtual ~Bureaucrat() {}
-
-	string get_name()
-	{
-		return name;
-	}
-	string name;
-	string request;
-	Bureaucrat * next;
-	int rand_num()
-	{
-		mt19937 rand_gen;
-		normal_distribution<double> rand_range(100, 99);
-		rand_gen.seed(time(NULL));
-		return rand_range(rand_gen);
-	}
-private:
-	virtual void approve() = 0;
-	virtual void decline() = 0;
-	virtual void transfer(string) = 0;
-};
 class Shredder : public Bureaucrat
 {
 public:
@@ -213,22 +174,4 @@ private:
 	Bureaucrat *next;
 };
 
-int main()
-{
-	
-	Shredder suggestionsBox;
-	LordOfPaperwork Balthazor("Balthazor the Administrator", &suggestionsBox);
-	ViceChairmanToTheLordOfPaperwork Trogdor("Trogdor the Taxinator", &Balthazor);
-	AideOfTheViceChairmanToTheLordOfPaperwork Bob("BOB!!!!!!", &Trogdor);
-	AssistantToTheAideOfTheViceChairmanToTheLordOfPaperwork Ezalor("Ezalor the Sortifier", &Bob);
-
-	cout << "WELCOME TO THE ADMINISTRATIVE DEPARTMENT OF ADMINISTRATIVE MINISTRIES OFFICE" << endl;
-	cout << "PLEASE ENTER YOUR REQUEST AND PRESS ENTER, THEN FILL OUT THE PROPER FORMS" << endl;
-	string request;
-	getline(cin, request);
-	Ezalor.handle(request);
-	
-
-
-	return 0;
-}
+#endif

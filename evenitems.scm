@@ -1,16 +1,16 @@
 #lang scheme
 
-(define (evenitems myList)
-  (print myList)
-  (define mynewList '())
-  (cons (car myList)(removeodds (cdr myList) 2))
+
+(define (removeodd lis counter)
+
+  (if (null? lis)
+      '()
+  (if (even? counter) (removeodd (cdr lis) 1)
+
+   (cons (car lis) (removeodd (cdr lis) 2))))
+)
+(define (evenitems lis)
+  (cons (car lis)(removeodd (cdr lis) 2))
   )
 
-(define (removeodds myList counter)
 
-  (if (null? myList)
-      '()
-  (if (even? counter) (removeodds (cdr myList) 1)
-
-   (cons (car myList) (removeodds (cdr myList) 2))))
-)
