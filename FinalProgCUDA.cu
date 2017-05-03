@@ -55,8 +55,8 @@ void write(const array2D<T> &arr, const char *name) {
 }
 __global__ void blur(float cur[1000][1000], float next[1000][1000])
 {
-	int y = threadIdx.x + 1;
-	int x = blockIdx.x + 1;
+	int y = threadIdx.x+1;
+	int x = blockIdx.x+1;
 	//array2D<float> cur = *curr, next = *nex;
 	//for (int y=1;y<cur.ny()-1;y++)
 	//for (int x=1;x<cur.nx()-1;x++)
@@ -117,7 +117,7 @@ void I_pity_the_foo() {
 	}
 	cur.swap(next);
 	} */
-	blur<<<1000, 1000 >>>(gpu_curr, gpu_next);
+	blur<<<999, 999 >>>(gpu_curr, gpu_next);
 
 	end = std::chrono::high_resolution_clock::now();;
 	std::chrono::duration<double> elapsed = end - start;
