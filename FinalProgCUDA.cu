@@ -53,21 +53,18 @@ void write(const array2D<T> &arr, const char *name) {
 			f.write((char *)&c, 1);
 		}
 }
-__global__ void blur(float cur[1000][1000], float next[1000][1000])
+__global__ void blur(float **cur, float **next)
 {
 	int y = threadIdx.x+1;
 	int x = blockIdx.x+1;
-	//array2D<float> cur = *curr, next = *nex;
-	//for (int y=1;y<cur.ny()-1;y++)
-	//for (int x=1;x<cur.nx()-1;x++)
 	for (int iter = 0;iter < 100;++iter)
 	{
-		next[x - 1][y - 1] = 0.25*(cur[x - 1][y] + cur[x + 1][y] + cur[x][y - 1] + cur[x][y + 1]);
+		next[x][y] = 0.25*(cur[x - 1][y] + cur[x + 1][y] + cur[x][y - 1] + cur[x][y + 1]);
 
 		float temp;
-		temp = next[x - 1][y - 1];
-		next[x - 1][y - 1] = cur[x - 1][y - 1];
-		cur[x - 1][y - 1] = temp;
+		temp = next[x][y];
+		next[x][y] = cur[x][y];
+		cur[x][y] = temp;
 	}
 	
 	
@@ -75,13 +72,24 @@ __global__ void blur(float cur[1000][1000], float next[1000][1000])
 void I_pity_the_foo() {
 	cout << "foo begin" << endl;
 	const int w = 1000, h = 1000;
-	cout << "foo creating 2DArrays" << endl;
+	cout << "foo creating Array2Ds" << endl;
 	array2D<float> cur(w, h);
 	array2D<float> next(w, h);
 
 	cout << "foo creating 2D arrays" << endl;
-	float curr[w][h], nex[w][h], dest[w][h];
-	float gpu_curr[w][h], gpu_next[w][h];
+	float ** curr = new float*[w];
+	float ** nex = new float*[w];
+	float ** dest = new float*[w];
+	float ** gpu_curr = new float*[w];
+	float ** gpu_next = new float*[w];
+	for (int i=0 ; i<w ; ++i)
+	{
+		curr[i] = new float[h];
+		nex[i] = new float[h];
+		dest[i] = new float[h];
+		gpu_curr[i] = new float[h];
+		gpu_next[i] = new float[h];
+	}
 
 	// Make initial conditions
 	cout << "foo initializing arrays" << endl;
@@ -103,6 +111,7 @@ void I_pity_the_foo() {
 	cudaMalloc((void**)&gpu_curr, w * h * sizeof(float));
 	cudaMalloc((void**)&gpu_next, w * h * sizeof(float));
 	cudaMemcpy(gpu_curr, curr, w * h * sizeof(float), cudaMemcpyHostToDevice);
+
 	cudaMemcpy(gpu_next, nex, w * h * sizeof(float), cudaMemcpyHostToDevice);
 
 	cout << "foo running blur on gpu" << endl;
@@ -141,6 +150,21 @@ void I_pity_the_foo() {
 		}
 	// Dump final image (good for debugging)
 	write(cur, "out.ppm");
+
+	for (int i = 0; i<w; ++i)
+	{
+		delete[] curr[i];
+		delete[] nex[i];
+		delete[] dest[i];
+		delete[] gpu_curr[i];
+		delete[] gpu_next[i];
+	}
+	delete[] curr;
+	delete[] nex;
+	delete[] dest;
+	delete[] gpu_curr;
+	delete[] gpu_next;
+
 	cout << "foo complete" << endl;
 }
 
