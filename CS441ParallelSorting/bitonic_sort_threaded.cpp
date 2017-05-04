@@ -38,7 +38,7 @@ void pre_sort(vector<int> & vect, int start, int size, bool direction, int threa
 	if (size > 1)
 	{
 		int offset = size / 2;
-		if(threads < 2)
+		if(threads < 4)
 		{
 			thread t1(pre_sort,std::ref(vect), start, offset, true,threads+2);
 			thread t2(pre_sort,std::ref(vect), start + offset, offset, false,threads+2);
@@ -62,7 +62,7 @@ void bit_sort(vector<int> & vect, int size)
 int main()
 {
 	srand(std::time(0));
-	size_t size=pow(2,15);
+	size_t size=pow(2,20);
 	vector<int> numbers(size); 
 	for(int i=0;i<size;++i)
 	{

@@ -5,8 +5,6 @@
 #include <fstream>
 #include <cmath>
 #include <chrono>
-#include <mpi.h>
-#include <stdlib.h>
 
 /* Store a 2D array as a row major 1D array */
 template <class T>
@@ -50,11 +48,10 @@ void write(const array2D<T> &arr,const char *name) {
 	}
 }
 
-int foo(int rank, int size) {
+int foo(void) {
 	int w=1000, h=1000;
 	array2D<float> cur(w,h);
 	array2D<float> next(w,h);
-
 
 	// Make initial conditions
 	for (int y=0;y<cur.ny();y++)
@@ -68,81 +65,30 @@ int foo(int rank, int size) {
 	// Run a few iterations of blurring
 	enum {nblur=100};
 	
-	int range = cur.ny();
-	if(size>0)  
-		range = h/size;
-	
-
-	
 	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
 	start=std::chrono::high_resolution_clock::now();
-
 	for (int blur=0;blur<nblur;blur++)
 	{
-		
-		for (int y=(rank*range+1);y<((rank*range)+range-1);++y)
+		for (int y=1;y<cur.ny()-1;y++)
 		for (int x=1;x<cur.nx()-1;x++)
 		{
 			next(x,y)=0.25*(cur(x-1,y)+cur(x+1,y)+cur(x,y-1)+cur(x,y+1));
-
-		} 
-
+		}
 		cur.swap(next);
 	}
-	
-	int tag = 5;
-	float storage[w*range];
-	if(rank == 0 && size >1)
-	{
-		MPI_Status stat;
-		for(int sender = 1;sender <size;++sender)
-		{
-			MPI_Recv(&storage[0],w*range*cur.nx(),MPI_FLOAT,sender,tag,MPI_COMM_WORLD, &stat);
-			int i = 0;
-			for (int y=(sender*range+1);y<((sender*range)+range-1);++y)
-			for (int x=1;x<cur.nx()-1;x++)
-			{
-				cur(x,y)= storage[i];
-				++i;
-			}
-		}
-	}
-	else if (rank != 0 && size > 1)
-	{
-		int i = 0;
-		for (int y=(rank*range+1);y<((rank*range)+range-1);++y)
-		for (int x=1;x<cur.nx()-1;x++)
-		{
-			storage[i]= cur(x,y);
-			++i;
-		}
-		MPI_Send(&storage[0],w*range*cur.nx(),MPI_FLOAT,0,tag, MPI_COMM_WORLD);
-	}
-
 
 	end=std::chrono::high_resolution_clock::now();;
 	std::chrono::duration<double> elapsed = end-start;
 	std::cout<<"Performance: "<<elapsed.count()/((w-2)*(h-2)*nblur)*1.0e9<<" ns/pixel\n";
 
 	// Dump final image (good for debugging)
-	write(cur,"MPI_out.ppm");
+	write(cur,"out.ppm");
 	return 0;
 }
 
-void exit_MPI()
-{
-	MPI_Finalize();
-}
 
-int main(int argc,char *argv[])
+int main()
 {
-	MPI_Init(&argc,&argv);
-	atexit(exit_MPI);
-	
-	int rank, size;
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-	foo(rank,size);
+	foo();
 	return 0;
 }
