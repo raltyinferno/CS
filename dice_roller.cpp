@@ -30,7 +30,8 @@ int main()
 	srand(time(NULL));
 	bool high_enough = false;
 	size_t iter= 0;
-	int a,b,c,d,e,f,min_stat;
+	int min_stat;
+	vector<int> stats(6);
 	char rep;
 	cout << "Enter your minimum for stats" <<endl;
 	cin >> min_stat;
@@ -38,19 +39,24 @@ int main()
  	while(!high_enough)
 	{
 		++iter;
-		a = roll();
-		b = roll();
-		c = roll();
-		d = roll();
-		e = roll();
-		f = roll();
-		if(a >=min_stat && b >= min_stat && c >= min_stat && d>= min_stat && e >= min_stat && f >= min_stat)
-			high_enough = true;
+		high_enough = true;
+		for (auto num : stats)
+		{
+			stats[num] = roll();
+			if (stats[num]<min_stat)
+				high_enough = false;
+		}
+		
 	}
+	sort(stats.begin(),stats.end());
 	high_enough = false;
 	cout << "After " << iter << " iterations, your scores are: ";
-	cout << endl << a <<" "<< b << " "<< c <<" "<< d <<" "<< e <<" "<< f <<endl;
-	cout << "Roll again for same min?(y/n):";
+	for (auto n : stats)
+	{
+		cout << stats[n] << " ";
+	}
+	cout << endl;
+	cout << "Roll again for same min?(y/n):" <<endl;
 	cin >> rep;
 	iter = 0;
 	}while(rep != 'n');
