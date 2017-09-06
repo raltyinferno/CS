@@ -4,6 +4,9 @@
 //bureaucracy.cpp
 //ACCURATE BUREAUCRACY SIMULATION
 
+#ifndef BUREAUCRACY_INCLUDED
+#define BUREAUCRACY_INCLUDED
+
 #include <string>
 #include <iostream>
 #include <utility>
@@ -62,10 +65,10 @@ private:
 	{}
 };
 
-class LordOfPaperwork: public Bureaucrat
+class LordOfPaperwork : public Bureaucrat
 {
 public:
-	LordOfPaperwork(string nam, Bureaucrat * worker):name(nam), next(worker)
+	LordOfPaperwork(string nam, Bureaucrat * worker) :name(nam), next(worker)
 	{}
 	void handle(string req)
 	{
@@ -91,16 +94,16 @@ private:
 	}
 	void transfer(string req)
 	{
-		cout << "I'm afraid you've filled out form C-" << rand_num() <<" incorrectly, you'll have to go back and fix that, have a nice day." << endl;
+		cout << "I'm afraid you've filled out form C-" << rand_num() << " incorrectly, you'll have to go back and fix that, have a nice day." << endl;
 		next->handle(req);
 	}
 
 
-	string name,request;
+	string name, request;
 	Bureaucrat *next;
 };
 
-class ViceChairmanToTheLordOfPaperwork: public Bureaucrat
+class ViceChairmanToTheLordOfPaperwork : public Bureaucrat
 {
 public:
 	ViceChairmanToTheLordOfPaperwork(string nam, Bureaucrat * worker) :name(nam), next(worker)
@@ -133,12 +136,12 @@ private:
 		next->handle(req);
 	}
 
-	string name,request;
+	string name, request;
 	Bureaucrat *next;
 
 };
 
-class AideOfTheViceChairmanToTheLordOfPaperwork: public Bureaucrat
+class AideOfTheViceChairmanToTheLordOfPaperwork : public Bureaucrat
 {
 public:
 	AideOfTheViceChairmanToTheLordOfPaperwork(string nam, Bureaucrat * worker) :name(nam), next(worker)
@@ -171,7 +174,7 @@ private:
 		next->handle(req);
 	}
 
-	string name,request;
+	string name, request;
 	Bureaucrat *next;
 };
 
@@ -209,9 +212,11 @@ private:
 		next->handle(req);
 	}
 
-	string name,request;
+	string name, request;
 	Bureaucrat *next;
 };
+#endif // !1
+
 
 int main()
 {
