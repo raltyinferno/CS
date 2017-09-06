@@ -8,6 +8,9 @@
 #include <mpi.h>
 #include <stdlib.h>
 
+using std::cout;
+using std::endl;
+
 /* Store a 2D array as a row major 1D array */
 template <class T>
 class array2D {
@@ -50,7 +53,25 @@ void write(const array2D<T> &arr,const char *name) {
 	}
 }
 
-int foo(int rank, int size) {
+
+
+void exit_MPI()
+{
+	MPI_Finalize();
+}
+
+int main(int argc,char *argv[])
+{
+	MPI_Init(&argc,&argv);
+	atexit(exit_MPI);
+	
+	int rank, size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	if(rank ==0)
+		cout << " declaring stuff" <<endl;
+	
 	int w=1000, h=1000;
 	array2D<float> cur(w,h);
 	array2D<float> next(w,h);
@@ -70,79 +91,128 @@ int foo(int rank, int size) {
 	
 	int range = cur.ny();
 	if(size>0)  
-		range = h/size;
+		range = w/size;
+		int pad = w-range*size;//takes care of loss from int division rank 0 processes the extra
+	if (rank ==0)
+		cout <<"the range is "<< range << "the size is " <<size <<endl;
 	
 
 	
-	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-	start=std::chrono::high_resolution_clock::now();
-
-	for (int blur=0;blur<nblur;blur++)
+	std::chrono::time_point<std::chrono::high_resolution_clock> starter, ender;
+	starter=std::chrono::high_resolution_clock::now();
+	int start = rank*range+pad, end = rank*range+range+pad;
+	if (rank == 0)
 	{
-		
-		for (int y=(rank*range+1);y<((rank*range)+range-1);++y)
-		for (int x=1;x<cur.nx()-1;x++)
+		cout <<"range,start"<< range << ", " << end-start <<endl;
+		for (int blur=0;blur<nblur;blur++)
 		{
-			next(x,y)=0.25*(cur(x-1,y)+cur(x+1,y)+cur(x,y-1)+cur(x,y+1));
+			
+			for (int y=(rank*range+1);y<end+range;++y)
+			for (int x=1;x<cur.nx()-1;x++)
+			{
+				next(x,y)=0.25*(cur(x-1,y)+cur(x+1,y)+cur(x,y-1)+cur(x,y+1));
 
-		} 
+			} 
 
-		cur.swap(next);
+			cur.swap(next);
+		}
 	}
-	
+	else if (rank == size-1)
+	{
+		for (int blur=0;blur<nblur;blur++)
+		{
+			
+			for (int y=(start-range);y<(end-1);++y)
+			for (int x=1;x<cur.nx()-1;x++)
+			{
+				next(x,y)=0.25*(cur(x-1,y)+cur(x+1,y)+cur(x,y-1)+cur(x,y+1));
+
+			} 
+
+			cur.swap(next);
+		}
+	}
+	else
+	{
+		for (int blur=0;blur<nblur;blur++)
+		{
+			
+			for (int y=(start-range);y<(end+range);++y)
+			for (int x=1;x<cur.nx()-1;x++)
+			{
+				next(x,y)=0.25*(cur(x-1,y)+cur(x+1,y)+cur(x,y-1)+cur(x,y+1));
+
+			} 
+
+			cur.swap(next);
+		}
+	}
+
 	int tag = 5;
 	float storage[w*range];
-	if(rank == 0 && size >1)
+	if(rank == 0)
 	{
 		MPI_Status stat;
 		for(int sender = 1;sender <size;++sender)
 		{
-			MPI_Recv(&storage[0],w*range*cur.nx(),MPI_FLOAT,sender,tag,MPI_COMM_WORLD, &stat);
+			MPI_Recv(&storage[0],w*range,MPI_FLOAT,sender,tag,MPI_COMM_WORLD, &stat);
+			if(sender == size-1)
+			{
+				int i = 0;
+				for (int y=(sender*range+pad);y<((sender*range)+range+pad-1);++y)
+				for (int x=1;x<cur.nx()-1;x++)
+				{
+					cur(x,y)= storage[i];
+					++i;
+				}
+			}
+			else
+			{
+				int i = 0;
+				for (int y=(sender*range+pad);y<((sender*range)+range+pad);++y)
+				for (int x=1;x<cur.nx()-1;x++)
+				{
+					cur(x,y)= storage[i];
+					++i;
+				}
+			}
+			
+		}
+		ender=std::chrono::high_resolution_clock::now();;
+		std::chrono::duration<double> elapsed = ender-starter;
+		std::cout<<"Performance: "<<elapsed.count()/((w-2)*(h-2)*nblur)*1.0e9<<" ns/pixel\n";
+		write(cur,"MPI_out.ppm");
+	}
+	else
+	{
+		if(rank == size-1)
+		{
 			int i = 0;
-			for (int y=(sender*range+1);y<((sender*range)+range-1);++y)
+			for (int y=(rank*range+pad);y<((rank*range)+range+pad-1);++y)
 			for (int x=1;x<cur.nx()-1;x++)
 			{
-				cur(x,y)= storage[i];
+				storage[i]= cur(x,y);
 				++i;
 			}
 		}
-	}
-	else if (rank != 0 && size > 1)
-	{
-		int i = 0;
-		for (int y=(rank*range+1);y<((rank*range)+range-1);++y)
-		for (int x=1;x<cur.nx()-1;x++)
+		else
 		{
-			storage[i]= cur(x,y);
-			++i;
+			int i = 0;
+			for (int y=(rank*range+pad);y<((rank*range)+range+pad);++y)
+			for (int x=1;x<cur.nx()-1;x++)
+			{
+				storage[i]= cur(x,y);
+				++i;
+			}
 		}
-		MPI_Send(&storage[0],w*range*cur.nx(),MPI_FLOAT,0,tag, MPI_COMM_WORLD);
+		MPI_Send(&storage[0],w*range,MPI_FLOAT,0,tag, MPI_COMM_WORLD);
+
 	}
 
 
-	end=std::chrono::high_resolution_clock::now();;
-	std::chrono::duration<double> elapsed = end-start;
-	std::cout<<"Performance: "<<elapsed.count()/((w-2)*(h-2)*nblur)*1.0e9<<" ns/pixel\n";
+	
 
 	// Dump final image (good for debugging)
-	write(cur,"MPI_out.ppm");
-	return 0;
-}
-
-void exit_MPI()
-{
-	MPI_Finalize();
-}
-
-int main(int argc,char *argv[])
-{
-	MPI_Init(&argc,&argv);
-	atexit(exit_MPI);
 	
-	int rank, size;
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-	foo(rank,size);
 	return 0;
 }
