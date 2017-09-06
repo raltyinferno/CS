@@ -376,6 +376,6 @@ int main(int argc,char *argv[])
 	
 
 	// Dump final image (good for debugging)
-	
+		
 	return 0;
 }

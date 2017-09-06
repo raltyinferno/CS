@@ -14,11 +14,11 @@ using std::vector;
 using std::swap;
 using std::endl;
 
-int partition(vector<int> vect, int lo, int hi)
+int partition(vector<int> & vect, int lo, int hi)
 {
 	int pivot = vect[hi];
 	int i = lo -1;
-	for(int j=lo;j <hi-1; ++j)
+	for(int j=lo;j <hi; ++j)
 	{
 		if (vect[j] <pivot)
 		{
@@ -31,9 +31,9 @@ int partition(vector<int> vect, int lo, int hi)
 	return i+1;
 }
 
-void quicksort( vector<int> vect,int lo, int hi)
+void quicksort( vector<int> & vect,int lo, int hi)
 {
-	if (vect[lo] < vect[hi])
+	if (lo < hi)
 	{
 		int p = partition(vect, lo, hi);
 		quicksort(vect, lo, p-1);
@@ -43,7 +43,7 @@ void quicksort( vector<int> vect,int lo, int hi)
 
 int main()
 {
-	const int NUM = 10;
+	const int NUM = 9;
 	srand(time(NULL));	
 	vector<int> numbers(NUM);
 	
@@ -52,12 +52,11 @@ int main()
 	for(auto n : numbers)
 		cout << n << endl;
 	
-	cout << "-----------------------" <<endl;
+	cout << "----------------------------" <<endl;
 	quicksort(numbers, 0, NUM-1);
-	cout << " ****************************" << endl;
+	cout << "****************************" << endl;
 
 	for(auto n : numbers)
 		cout << n << endl;
-	
 	cout << "is sorted: " <<is_sorted(numbers.begin(), numbers.end()) <<endl;
 }
